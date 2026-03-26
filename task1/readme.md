@@ -1,10 +1,9 @@
 # Draft Response:
 
-### Notes:
-Strengths:
+### Strengths:
 Currently, the project has a strong framework for the prototyping workflow for training and prediction: data loading, model setup, training, and output.
 
-Issues:
+### Issues:
 The project does not have functionality for easy comparisons, between architectures, data, and ablation. The project will need a way to configure these different model types, switch between them, and compare their different output results.
 - Fix configuration:
 	- Currently the model is defined in the class and loaded in the trainer.
@@ -12,7 +11,7 @@ The project does not have functionality for easy comparisons, between architectu
 	- For collaboration, a single data source will be optimal.
 - Output is fixed to hard-coded paths.
 
-Proposed solution:
+### Proposed solution:
 - Define a configuration class:
 	- Model architectures, ablation, attention mechanisms are defined in sub-transformer classes
 		- And configuration loads appropriate transformer class by name: (e.g. NaiveProteinTransformer, EightHeadProteinTransformer, AblatedHeadProteinTransformer)
@@ -30,8 +29,10 @@ Proposed solution:
 		A SQL database can be a longterm solution if more comprehensivee metadata is needed per run.
 		(git commit hash for model run, hash of dataset, etc...)
 
-Open questions:
+### Open questions:
 - Verify that ablation and attention mechanisms can be customized in Transformer subclasses.
 - Work through potential output format more carefully, is a SQL database necessary? 
-- What does collaboration look like? Those who can code and write custom subclasses? Or do we stick to configuration files?
-
+- What does collaboration look like? 
+	- As git branching and custom transformer definitions?
+	- Different configuration files?
+	- Where are outputs stored for collaboration and comparative analysis?
