@@ -1,38 +1,55 @@
 # Draft Response:
 
-### Strengths:
-Currently, the project has a strong framework for the prototyping workflow for training and prediction: data loading, model setup, training, and output.
+-----------
 
-### Issues:
-The project does not have functionality for easy comparisons, between architectures, data, and ablation. The project will need a way to configure these different model types, switch between them, and compare their different output results.
-- Fix configuration:
-	- Currently the model is defined in the class and loaded in the trainer.
-- Data is loaded from a csv
-	- For collaboration, a single data source will be optimal.
-- Output is fixed to hard-coded paths.
+Draft text:
 
-### Proposed solution:
-- Define a configuration class:
-	- Model architectures, ablation, attention mechanisms are defined in sub-transformer classes
-		- And configuration loads appropriate transformer class by name: (e.g. NaiveProteinTransformer, EightHeadProteinTransformer, AblatedHeadProteinTransformer)
-	- Dataset configuration (* see below)
-	- Fitness measurements, encode in dataset (** determine if fitness is a data level configuration or a training one.)
-	- Name (for file saving)
+### First paragraph: Strengths with Transition into New Requirements
 
-- Create a unified data storage location for collaboration
-	- Create a data loading procedure that downloads the dataset
+This transformer-based prototype--that predicts protein fitness from sequence—--is a strong foundational project, with potential for scaling up to a comprehensive research project. The code has a clear workflow with well-encapsulated components. These components create a nice scaffold for: (1) defining the model architecture, (2) loading the data, and (3) training and testing the model. For these reasons, the model is positioned well to scale to more complex tasks, such as model comparison and collaboration. 
 
-- Output
-	- Create a file saving naming convention which includes the name of the configuration and the run (datetime and the user who ran the model, and a unique hash if necessary)
-	- Potentially these models will run on a computing cluster and save to a unified output space, for which collaborators can compare model runs.
-	- An overkill solution if collaboration is needed for more complex runs:
-		A SQL database can be a longterm solution if more comprehensivee metadata is needed per run.
-		(git commit hash for model run, hash of dataset, etc...)
+### Second paragraph: Define the requirements and lay out projects issues linked to new requirements
 
-### Open questions:
-- Verify that ablation and attention mechanisms can be customized in Transformer subclasses.
-- Work through potential output format more carefully, is a SQL database necessary? 
-- What does collaboration look like? 
-	- As git branching and custom transformer definitions?
-	- Different configuration files?
-	- Where are outputs stored for collaboration and comparative analysis?
+At a high-level, we are interested in extending this project in three ways: (1) allow variation in model runs for comparison (e.g. architecture, datasets, etc.), (2) enable project collaboration, and (3) enforce reproducibility of model runs for publication. Currently, there are a couple of structural issues that impede these new requirements. First, the model architecture, data source, and output are all hard-coded. So, we are not able to run comparisons between architecture, datasets, fitness scores etc. Second, the model setup, data storage, and model run output is setup to run locally. This is acceptable in the short term, but in order to fulfil the requirements for collaboration and reproducibility, we will need an organized and systematic way to store data, run the model, and compare outputs.
+
+
+### Third paragraph: Proposal for solution
+
+To address these issues, I propose a two main refactoring features: (1) model run configurations, (2) server-side data storage and run (3) version control. First, we will create a way to define model run configurations, including architecture, attention mechanisms, and data storage. Using this configuration, we can create a simple way to run the model with various configurations. The output also will need to reflect these different configurations. Second, store the data and run outputs server-side to allow for collaboration. Researchers can define various configurations and run the model server-side to compare the runs (** this is where we need to know what collaboration looks like). This is item is also linked to reproducibility, as a unified location for storing input and output data will create a clear reproducible pipeline from data loading to final model run output. Finally, store the project code on a server-side code repository. This will allow collaborators to define configuration and make changes to the model on the server. As a side note, the model output should include a commit hash of the project's codebase for reproducibility.
+
+
+```
+Detailed requirements for reference:
+	Run comparisons
+	- Model comparison: ablation, architectures, attention mechanisms.
+	- Different datasets
+	- Different protein fitness measurements
+
+	Configuration
+	- Collaboration: 
+		- Shared data stores, shared models, ability to define various model configurations.
+	- Reproducibility:
+		- Deterministic runs:
+			- Shared and clear dataset definitions and configuration
+			- Clear pipeline for each configuration option.
+
+Issues for reference:
+1. Hard-coded items: model architecture, dataset, and output - comparison is not currently possible.
+2. Model and code is local only - Difficulty in collaboration.
+3. (reproducibility may be an an issue later, note keeping track of rng data loading and training)
+
+Solutions for reference:
+1. Model configuration definitions.
+2. Server-side data and model runs.
+3. Git code repository.
+```
+
+```
+Notes for reference:
+
+Modify text: 
+- The solution text is the most important. 
+- Add specific detail (e.g. where in the code base does the configuration apply? What does model running on the server look like?)
+- Some points can be made more clear: Why does server-side running enable organized collaboration?
+
+```
