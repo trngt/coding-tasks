@@ -12,10 +12,9 @@ This transformer-based prototype--that predicts protein fitness from sequence--i
 
 At a high level, we are interested in extending this project in three ways: (1) allowing variation in model runs for comparison (e.g., architecture, datasets, etc.), (2) enabling project collaboration, and (3) enforcing reproducibility of model runs for publication. Currently, there are a couple of structural issues that impede these new requirements. First, the model architecture, data source, and output are all hard-coded. So, we are not able to run comparisons between architecture, datasets, fitness scores, etc. Second, the model setup, data storage, and model run output are set up to run locally. This is acceptable in the short term, but in order to fulfil the requirements for collaboration and reproducibility, we will need an organized and systematic way to store data, run the model, and compare outputs.
 
-
 ### Third paragraph: Proposal for solution
 
-To address these issues, I propose two main refactoring features: (1) model run configurations, (2) server-side data storage, and (3) version control. First, we will create a way to define model run configurations, including architecture, attention mechanisms, and data storage. Using this configuration, we can create a simple way to run the model with various configurations. The output will also need to reflect these different configurations. Second, store the data and run outputs server-side to allow for collaboration. Researchers can define various configurations and run the model server-side to compare the runs (** this is where we need to know what collaboration looks like). This item is also linked to reproducibility, as a unified location for storing input and output data will create a clear, reproducible pipeline from data loading to final model run output. Finally, store the project code on a server-side code repository. This will allow collaborators to define configuration and make changes to the model on the server. As a side note, the model output should include a commit hash of the project's codebase for reproducibility.
+To address these issues, I propose two main refactoring features: (1) model run configurations, (2) server-side data storage, and (3) version control. First, we will create a way to define model run configurations, including architecture, attention mechanisms, and data storage. Using this configuration, we can create a simple way to run the model with various configurations. The output will also need to reflect these different configurations. Second, store the data and run outputs server-side to allow for collaboration. Researchers can define various configurations and run the model server-side to compare the runs. This item is also linked to reproducibility, as a unified location for storing input and output data will create a clear, reproducible pipeline from data loading to final model run output. Finally, store the project code on a server-side code repository. This will allow collaborators to define configuration and make changes to the model on the server. As a side note, the model output should include a commit hash of the project's codebase for reproducibility.
 
 
 ```
@@ -51,5 +50,5 @@ Modify text:
 - The solution text is the most important. 
 - Add specific detail (e.g. where in the code base does the configuration apply? What does model running on the server look like?)
 - Some points can be made more clear: Why does server-side running enable organized collaboration?
-
+- What does collaboration entail? Model running? Model architecture definitions? Likely the latter.
 ```
