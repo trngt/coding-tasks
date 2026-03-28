@@ -4,52 +4,50 @@
 
 Draft text:
 
-### The project and its strengths
+### The project, its strengths, and the new requirements
 
-This transformer-based prototype--that predicts protein fitness from sequence--is a strong foundational project, with potential for scaling up to a comprehensive research project. The code has a clear workflow with well-encapsulated components. These components create a nice scaffold for: (1) defining the model architecture, (2) loading the data, and (3) training and testing the model. For these reasons, the model is positioned well to scale up to more complex tasks, such as model comparison and collaboration.
+This transformer-based prototype--that predicts protein fitness from sequence--is a strong foundational project, with potential for scaling up to a comprehensive research project. The code has a clear workflow with well-encapsulated components. These components create a nice scaffold for defining the model architecture, loading the data, and training and testing the model. Additionally, the creator has reproducibility in mind. They have set a random seed for consistent data creation and created a requirements.txt for consistent python package environments. For these reasons, the model is a nice starting point to scale up to more complex applications. Scaling will require three high-level ideas: model run variation for comparison (e.g., architecture, datasets, etc.), project setup for collaboration, and reproducible model runs for publication. However, these requirements also mean addressing a few notable issues with the project.
 
-### The requirements and the projects issues
+### Projects issues
 
-At a high level, we are interested in extending this project in three ways: (1) allowing variation in model runs for comparison (e.g., architecture, datasets, etc.), (2) enabling project collaboration, and (3) enforcing reproducibility of model runs for publication. 
-
-However, there are a couple of structural issues that impede these new requirements. First, the model architecture, data source, and output are all hard-coded. So, we are not able to run comparisons between architecture, datasets, fitness scores, etc. Second, the model setup, data storage, and model run output are set up to run locally. This will create organizational issues during collaboration when model runs against local datasets are run individually on each collaborator's machines. We will need a solution that streamlines collaboration and enforces reproducibility.
+The issues with the project include: (1) hard-coded configuration, (2) local storage of data, and (3) an incomplete environment definition for reproducibility. First, the model architecture, data source, and output are all hard-coded. So, we the model is not yet set up to run model variations for comparisons. Second, the data storage and model run output are both stored locally. This will create organizational issues when we begin collaboration. Data sets can become misaligned, and model runs will vary, as each will live as separate copies on disparate machines. And finally, while the requirements.txt is a good starting point, the Python version and other machine-specific packages are not specified and will likely vary across user machines. We will need a solution that addresses these points and creates a streamlined workflow with collaboration and reproducibility in mind.
 
 ### Proposal solutions
 
-To address these issues, I propose three main refactoring ideas: (1) model run configurations, (2) server-side data storage, and (3) code version control. First, we will create a way to define model run configurations, including architecture, attention mechanisms, and data storage. Using this configuration, we can create a simple way to run the model with various configurations. The output naming and storage will also reflect these varying configurations for run comparisons. Second, store the data and run outputs server-side to allow for collaboration. Researchers can define and implement different run configurations and run the model server-side, storing the output in a unified place for comparison. This idea is also linked to reproducibility, as a unified location for storing inputs and outputs will create a clear, reproducible pipeline from data loading to final model run output. Finally, store the project code on a server-side code repository. This will allow collaborators to define and implement configurations to the model server-side. Importantly, it is critical to include a git identifier (commit hash/version tag) on model run outputs for reproducibility.
+To create this solution, I propose three main refactoring ideas: (1) model run configurations, (2) server-side data storage, and (3) code version control. First, we will create a way to define model run configurations, including architecture, attention mechanisms, and data storage. Using this configuration, we can create a simple way to run the model with various configurations. The output naming and storage will also reflect these varying configurations for run comparisons. Second, store the data and run outputs server-side to allow for collaboration. Researchers can define and implement different run configurations and run the model server-side, storing the output in a unified place for comparison. This idea is also linked to reproducibility, as a unified location for storing inputs and outputs will create a clear, reproducible pipeline from data loading to final model run output. Finally, store the project code on a server-side code repository. This will allow collaborators to define and implement configurations to the model server-side. Importantly, it is critical to include a git identifier (commit hash/version tag) on model run outputs for reproducibility. This solution unifies shared components and creates a configurable workflow for a streamlined collaborative research process.
 
 ```
-Detailed requirements for reference:
-	Run comparisons
-	- Model comparison: ablation, architectures, attention mechanisms.
-	- Different datasets
-	- Different protein fitness measurements
-
-	Configuration
-	- Collaboration: 
-		- Shared data stores, shared models, ability to define various model configurations.
-	- Reproducibility:
-		- Deterministic runs:
-			- Shared and clear dataset definitions and configuration
-			- Clear pipeline for each configuration option.
 
 Issues for reference:
 1. Hard-coded items: model architecture, dataset, and output - comparison is not currently possible.
 2. Model and code is local only - Difficulty in collaboration.
-3. (reproducibility may be an an issue later, note keeping track of rng data loading and training)
+3. Reproducibility: environment specification (conda or Docker)
 
 Solutions for reference:
 1. Model configuration definitions.
-2. Server-side data and model runs.
+	(model definitions, yml or json configuration files)
+2. Server-side data and run environment.
+	- Necessity of server-side data (expand)
+	- Run environment enforces strict reproducibility, and aids in collaboration.
 3. Git code repository.
+	- Collaboration across model definitions and configuration.
+	- Clear workflow and branching
+	- Clear tagging/hash commits for model runs for reproducibility
 ```
 
 ```
 Notes for reference:
 
-Modify text: 
-- The solution text is the most important. 
-- Add specific detail (e.g. where in the code base does the configuration apply? What does model running on the server look like?)
-- Some points can be made more clear: Why does server-side running enable organized collaboration?
-- What does collaboration entail? Model running? Model architecture definitions? Likely the latter.
+High-level ideas to incorporate:
+1. Server-side data reasoning. (Add in solution)
+2. Server-side running (Add in solution)
+3. Need for Docker or conda environment for consistent server-side running.
+
+Expand the solutions to a fourth paragraph, decide on which details to split.
+
+Outstanding questions: 
+- Where in the code base does the configuration apply? 
+- What does model running on the server look like?
+- Why does server-side running enable organized collaboration?
+- What does collaboration entail? Model running? Model architecture definitions? Likely both.
 ```
