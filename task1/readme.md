@@ -1,8 +1,4 @@
-# Draft Response:
-
------------
-
-Draft text:
+# Task 1: Proposed Updates to the Protein-Transformer Project (Draft)
 
 ### The project, its strengths, and the new requirements
 
