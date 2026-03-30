@@ -13,4 +13,12 @@ dependencies:
   - transformers>=4.56.0
   - jupyterlab
   - matplotlib-base
+  - pip:
+    - pyvista
+    # For 3d interactive plots with pyvista
+    - trame
+    - trame-vuetify
+    - trame-vtk
+    - nest_asyncio2
+    - ipywidgets   
 
