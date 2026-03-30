@@ -1,0 +1,16 @@
+name: mito-mia
+channels:
+  - pytorch
+  - conda-forge
+dependencies:
+  - python=3.12
+  - fsspec=2026.2.0
+  - s3fs=2026.2.0
+  - zarr=3.1.5
+  - dask=2026.3.0
+  - pytorch>=2.7.1
+  - torchvision
+  - transformers>=4.56.0
+  - jupyterlab
+  - matplotlib-base
+
