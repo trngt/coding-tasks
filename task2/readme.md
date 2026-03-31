@@ -11,26 +11,23 @@ Two definitions of patch sizes to make clear:
 
 Unless specified, patch size will refer to (1).
 
-```
 Steps:
 1. Determine average mitochondria size [(Alberts B, 2002)](https://www.ncbi.nlm.nih.gov/books/NBK26894/)
 	0.5-1 microns
 2. Determine pixel resolution (nm / pixel) from the attributes.json for the appropriate em n5 dataset:
 	For s0, the resolution is 8x8x8 nm / pixel
 3. Then, compute average mitochondria size per pixel.
-	(0.5-1)*(1000)/(8) = 62.5-125 pixels
+	`(0.5-1)*(1000)/(8) = 62.5-125 pixels`
 4. Thus at, s0 (8x8x8 resolution), the average mitochondria size will be
-    62.5-125
+    `62.5-125` px
 At s1 (16x16x16), they will be:
-	31.25-62.5
+	`31.25-62.5` px
 5. An appropriate data set patch size will capture the mitochondria at pixel scales:
 	224x	224 px at s0
 and 
-	128x128 px at s1
-```
+	`128x128` px at s1
 
 This calculation will work at different scales. The decision for the patch size is determined by the DINOv3 patch size, fixed at 16x16. That is 224 and 128 pixel dimesion are both divisible by model's 16 px patch size.
-
 
 #### Related to the image resolution: 
 Both the ViT (Dosovitskiy, 2020) and DINOv2 (Oquab, 2024) papers describe the compute and efficiency trade-off with smaller patch sizes. Oquab describes this through image resolution comparisons. 
