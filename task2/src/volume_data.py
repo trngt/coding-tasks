@@ -1,5 +1,5 @@
 import numpy as np
-from .slice import Slice
+from .slice import Slice3D
 from fibsem_tools import read_xarray, read
 
 class VolumeData:
@@ -18,5 +18,5 @@ class VolumeData:
     def load(self):
         self.data = read_xarray(self.s3_path + f'/{self.resolution}', storage_options=self.creds)
 
-    def get_slice(self, slc: Slice) -> np.ndarray:
+    def get_slice(self, slc: Slice3D) -> np.ndarray:
         raise NotImplementedError

@@ -1,4 +1,4 @@
-from .slice import Slice
+from .slice import Slice3D
 from .volume_data import VolumeData
 from .slice_generator import SliceGenerator
 from .em_data import EMData

@@ -1,6 +1,5 @@
 from typing import List, Tuple
 import numpy as np
-from .slice import Slice
 from .em_data import EMData
 from .segmentation_data import SegmentationData
 
