@@ -1,10 +1,14 @@
-class Slice:
+class Slice3D:
     """A simple 3D index range definition (z, y, x ranges).
 
-    No knowledge of the data itself.
+    Note the x, y, and z arguments are slices (ranges of values)
     """
 
     def __init__(self, z: slice, y: slice, x: slice):
         self.z = z
         self.y = y
         self.x = x
+
+    def __repr__(self):
+        return f"Slice at (z:{self.z}, y:{self.y}, x:{self.x})"
+
