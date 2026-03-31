@@ -47,7 +47,7 @@ class Visualizer:
 
         return cmap, norm, clim, seg_out
 
-    def plot_segmentation_example(self, slc: Slice3D, z_index: int):
+    def plot_segmentation_example(self, slc: Slice3D, z_index: int, title: str = ""):
         """Plot EM, segmentation, and overlay for a given slice at z_index.
 
         Args:
@@ -68,7 +68,7 @@ class Visualizer:
 
         cmap, norm, clim, seg_out = self._build_seg_colormap(seg_slice.values, remap=True)
 
-        fig, (ax0, ax1, ax2) = plt.subplots(1, 3, figsize=(9, 3))
+        fig, (ax0, ax1, ax2) = plt.subplots(1, 3, figsize=(9, 3.5))
 
         # Compute extents in nm
         dimensions = self.data_manager.em_data.data.attrs['pixelResolution']['dimensions']
@@ -96,6 +96,8 @@ class Visualizer:
         ax2.imshow(seg_out, cmap=cmap, norm=norm, alpha=0.4, extent=extent)
         ax2.set_title('Overlay')
         format_axes(ax2)
+
+        plt.suptitle(title)
 
         plt.tight_layout()
         plt.show()
