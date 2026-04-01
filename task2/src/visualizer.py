@@ -105,6 +105,8 @@ class Visualizer:
     def plot_segmentation_3d_voxels(self, slc: Slice3D, z_plane: int):
         """Renders the segmentation volume as coloured voxels using PyVista.
 
+        todo: Currently unused
+
         Args:
             slc: Slice3D object defining the (z, y, x) index ranges to load.
             z_plane: Z index of the reference plane to overlay (absolute index).

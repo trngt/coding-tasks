@@ -19,4 +19,20 @@ class VolumeData:
         self.data = read_xarray(self.s3_path + f'/{self.resolution}', storage_options=self.creds)
 
     def get_slice(self, slc: Slice3D) -> np.ndarray:
-        raise NotImplementedError
+        """Get the slice of the data as an np.array"""
+
+        # If selecting a plane on the z-axis, modify the argument
+        # to a single int rather than a slice/range
+        if slc.z.start == slc.z.stop:
+            z = slc.z.start
+        else:
+            z = slc.z
+
+        slice_data = self.data.isel(
+            z=z,
+            y=slc.y,
+            x=slc.x
+        )
+        slice_data = np.array(slice_data.values)
+
+        return slice_data
