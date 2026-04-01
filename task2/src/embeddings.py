@@ -1,5 +1,7 @@
 
 import torch
+import torch.nn.functional as F
+
 import numpy as np
 from .data_manager import DataManager
 from dinov3.models.vision_transformer import DinoVisionTransformer
@@ -12,18 +14,16 @@ class EmbeddingsManager:
         self.model = model
 
     def compute_dense_embeddings(self, slices):
+        """Compute the dense embeddings for slices of the data"""
 
         n = len(slices)
 
-        embeddings = []
         all_dense_maps = []
 
         for i, slc in enumerate(slices):
             x = _load_data_for_dino(self.data_manager, slc)
-            out = _compute_patch_embeddings(self.model, x)
-            embeddings.append(out)
 
-            dense_map = _compute_dense(out)
+            dense_map = _compute_dense_dpt(x, self.model)
             all_dense_maps.append(dense_map)
             
             if i % 2 == 0:
@@ -31,6 +31,7 @@ class EmbeddingsManager:
 
             if i == 10:
                 # todo: debugging against first 10 slices
+                print("todo: Breaking early for debugging purposes")
                 break
 
         self.all_dense_maps = all_dense_maps
@@ -43,7 +44,7 @@ class EmbeddingsManager:
         self.slc = slc
         self.slc_segmented_data = self.data_manager.segmentation_data.get_slice(self.slc)
         self.slc_em_data = self.data_manager.em_data.get_slice(self.slc)
-        self.slc_embeddings = self.all_dense_maps[self.slc_index].numpy()
+        self.slc_embeddings = self.all_dense_maps[self.slc_index]
 
     def find_mitochondria_ids(self):
         """Retrieve mitochondrial label from the segmentation data"""
@@ -151,18 +152,62 @@ def _load_data_for_dino(data_manager, slc):
     x = (x - mean) / std
     return x
 
-def _compute_dense(out):
+def _compute_dense_bilinear(x, model):
     """Compute the dense embeddings
-    for an output.
+    for an output using bilinear interpolation"""
 
-    todo: Fixed at 384x8x8 per the VIT-16S model."""
+    out = _compute_patch_embeddings(self.model, x)
 
-    patch_tokens = out["x_norm_patchtokens"]          # (1, 64, 384)
-    patch_map = patch_tokens.reshape(1, 384, 8, 8)    # (1, 384, 8, 8)
+    num_embed = model.embed_dim
 
+    patch_tokens = out["x_norm_patchtokens"]          # (1, 64, D)
+    patch_map = patch_tokens.reshape(1, num_embed, 8, 8)    # (1, D, 8, 8)
+
+    # todo: fix WxH resolution from hard-coded 128
     dense = torch.nn.functional.interpolate(
         patch_map, size=(128, 128),
         mode="bilinear", align_corners=False
-    )                                                  # (1, 384, 128, 128)
+    )                                                  # (1, D, 128, 128)
     dense = torch.nn.functional.normalize(dense, dim=1)  # L2 norm per pixel
     return dense
+
+
+def _compute_dense_dpt(img, model, out_hw=(128, 128)):
+    """
+    Compute dense embeddings using multi-layer DPT-style feature aggregation,
+    leveraging DINOv2's built-in get_intermediate_layers().
+    """
+
+    patch_size = model.patch_size
+    h_patches  = img.shape[2] // patch_size
+    w_patches  = img.shape[3] // patch_size
+
+    # Collect model blocks, 4 total intermediate layers
+    total_blocks = len(model.blocks)
+    n_taps = 4
+    indices = [total_blocks * i // n_taps - 1 for i in range(1, n_taps + 1)]
+
+    # Extract 4 intermediate layers
+    intermediates = model.get_intermediate_layers(
+        img,
+        n=indices,               # Early and latter layers of the model for broad and specific
+        return_class_token=True, # (patch_tokens, cls_token) tuples
+        reshape=True,            # directly returns (B, D, H_p, W_p) — no reshape needed!
+    )
+
+    # Upsample each layer's map to the target resolution
+    layer_maps = []
+    for patch_map, _cls in intermediates:
+        upsampled = F.interpolate(
+            patch_map, size=out_hw,
+            mode="bilinear", align_corners=False
+        )
+        layer_maps.append(upsampled)
+
+    # Fuse by averaging
+    dense = torch.stack(layer_maps, dim=0).mean(dim=0)    # (B, D, H, W)
+
+    # normalize per pixel
+    dense = F.normalize(dense, dim=1)
+
+    return dense.detach().numpy()
