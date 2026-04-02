@@ -41,6 +41,15 @@
 
 ### Class structure
 
+- Data manager
+- Slice generator
+- Embeddings manager (currently dual-role: computes embeddings, and analyzes embeddings for a mitochondria)
+- New class ideas: 
+	- Mitochondrial embeddings manager (computes per-mitochondria embeddings for a dataset)
+	- Data Comparison Analyzer
+
+- Visualizer (general visualization, can be split or focused into specific cases)
+
 ## Discussion
 
 ## Project Limitations
