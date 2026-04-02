@@ -185,4 +185,5 @@ def format_microscopy_ax(ax, data_manager, slc):
         for y in y_grid_lines:
             ax.axhline(y, color='red', linewidth=0.25, alpha=0.1)
 
+    format_axes(ax)
     draw_grid(ax)
