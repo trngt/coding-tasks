@@ -4,6 +4,7 @@ import torch.nn.functional as F
 
 import numpy as np
 from .data_manager import DataManager
+from .slice import Slice3D
 from dinov3.models.vision_transformer import DinoVisionTransformer
 
 class EmbeddingsManager:
@@ -16,8 +17,11 @@ class EmbeddingsManager:
     def compute_dense_embeddings(self, slices):
         """Compute the dense embeddings for slices of the data"""
 
-        n = len(slices)
+        from .timer import Timer
 
+        timer = Timer()
+
+        n = len(slices)
         all_dense_maps = []
 
         for i, slc in enumerate(slices):
@@ -26,13 +30,9 @@ class EmbeddingsManager:
             dense_map = _compute_dense_dpt(x, self.model)
             all_dense_maps.append(dense_map)
             
-            if i % 2 == 0:
-                print(f"{i}/{n}")
+            if i % 20 == 0:
+                print(f"{i}/{n} - {timer.get_time()}")
 
-            if i == 10:
-                # todo: debugging against first 10 slices
-                print("todo: Breaking early for debugging purposes")
-                break
 
         self.all_dense_maps = all_dense_maps
         return self.all_dense_maps
@@ -98,7 +98,6 @@ class EmbeddingsManager:
         import matplotlib.pyplot as plt
 
         # Plot the mask against the em data to ensure masking is performed properly
-
         em_slice_data = self.slc_em_data
 
         fig = plt.figure(figsize=(12, 3))
@@ -137,14 +136,14 @@ def _load_data_for_dino(data_manager, slc):
     ).compute()
     
     # da is your xarray DataArray with shape (H, W)
-    arr = img.values  # (128, 128) numpy array
+    arr = img.values  # (W, H) numpy array
     
     # Normalize to [0, 1] first if your data isn't already
     arr = (arr - arr.min()) / (arr.max() - arr.min())
     
-    # Replicate to 3 channels and convert to tensor: (1, 3, 128, 128)
-    arr_3ch = np.stack([arr, arr, arr], axis=0)          # (3, 128, 128)
-    x = torch.tensor(arr_3ch, dtype=torch.float32).unsqueeze(0)  # (1, 3, 128, 128)
+    # Replicate to 3 channels and convert to tensor: (1, 3, W, H)
+    arr_3ch = np.stack([arr, arr, arr], axis=0)          # (3, W, H)
+    x = torch.tensor(arr_3ch, dtype=torch.float32).unsqueeze(0)  # (1, 3, W, H)
     
     # Apply ImageNet normalization
     mean = torch.tensor([0.485, 0.456, 0.406]).view(1, 3, 1, 1)
@@ -156,38 +155,47 @@ def _compute_dense_bilinear(x, model):
     """Compute the dense embeddings
     for an output using bilinear interpolation"""
 
+    out_hw = x.shape
     out = _compute_patch_embeddings(self.model, x)
+
+    patch_size = model.patch_size
+    w_patches  = W // patch_size
+    h_patches  = H // patch_size
 
     num_embed = model.embed_dim
 
-    patch_tokens = out["x_norm_patchtokens"]          # (1, 64, D)
-    patch_map = patch_tokens.reshape(1, num_embed, 8, 8)    # (1, D, 8, 8)
+    patch_tokens = out["x_norm_patchtokens"]
+    patch_map = patch_tokens.reshape(1, num_embed, w_patches, h_patches)
 
     # todo: fix WxH resolution from hard-coded 128
     dense = torch.nn.functional.interpolate(
-        patch_map, size=(128, 128),
+        patch_map, size=(W, H),
         mode="bilinear", align_corners=False
     )                                                  # (1, D, 128, 128)
     dense = torch.nn.functional.normalize(dense, dim=1)  # L2 norm per pixel
     return dense
 
 
-def _compute_dense_dpt(img, model, out_hw=(128, 128)):
+def _compute_dense_dpt(img, model):
     """
     Compute dense embeddings using multi-layer DPT-style feature aggregation,
     leveraging DINOv2's built-in get_intermediate_layers().
     """
+    W, H = img.shape[2], img.shape[3]
 
     patch_size = model.patch_size
-    h_patches  = img.shape[2] // patch_size
-    w_patches  = img.shape[3] // patch_size
+    w_patches  = W // patch_size
+    h_patches  = H // patch_size
 
     # Collect model blocks, 4 total intermediate layers
     total_blocks = len(model.blocks)
-    n_taps = 4
-    indices = [total_blocks * i // n_taps - 1 for i in range(1, n_taps + 1)]
+    n_taps = 2
+    # indices = [total_blocks * i // n_taps - 1 for i in range(1, n_taps + 1)]
 
-    # Extract 4 intermediate layers
+    # Retrieve the last layers
+    indices = np.arange(total_blocks-n_taps-1, total_blocks-1, 1)
+
+    # Extract intermediate layers
     intermediates = model.get_intermediate_layers(
         img,
         n=indices,               # Early and latter layers of the model for broad and specific
@@ -199,7 +207,7 @@ def _compute_dense_dpt(img, model, out_hw=(128, 128)):
     layer_maps = []
     for patch_map, _cls in intermediates:
         upsampled = F.interpolate(
-            patch_map, size=out_hw,
+            patch_map, size=(W, H),
             mode="bilinear", align_corners=False
         )
         layer_maps.append(upsampled)

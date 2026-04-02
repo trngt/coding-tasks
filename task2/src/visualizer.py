@@ -81,21 +81,37 @@ class Visualizer:
                   slc.y.stop*y_nm_per_pixel/nm_per_microns]
 
         def format_axes(ax):
+            """Format the axes for each imshow with the same labels"""
             ax.set_xlabel(f"{extent[1]-extent[0]:.1f} μm, {slc.x.stop-slc.x.start} px")
             ax.set_ylabel(f"{extent[3]-extent[2]:.1f} μm, {slc.y.stop-slc.y.start} px")
+
+        # Draw the grid
+        patch_size = 16 # todo: fixed based on DINOv3 patch size
+        x_patch_um = patch_size * x_nm_per_pixel / nm_per_microns
+        y_patch_um = patch_size * y_nm_per_pixel / nm_per_microns
+        x_grid_lines = np.arange(extent[0], extent[1], x_patch_um)
+        y_grid_lines = np.arange(extent[2], extent[3], y_patch_um)
+        def draw_grid(ax):
+            for x in x_grid_lines:
+                ax.axvline(x, color='red', linewidth=0.25, alpha=0.1)
+            for y in y_grid_lines:
+                ax.axhline(y, color='red', linewidth=0.25, alpha=0.1)
 
         ax0.imshow(em_slice, cmap='gray', extent=extent)
         ax0.set_title('EM')
         format_axes(ax0)
+        draw_grid(ax0)
 
         ax1.imshow(seg_out, cmap=cmap, norm=norm, extent=extent)
         ax1.set_title('Segmentation')
+        draw_grid(ax1)
         format_axes(ax1)
 
         ax2.imshow(em_slice, cmap='gray', extent=extent)
         ax2.imshow(seg_out, cmap=cmap, norm=norm, alpha=0.4, extent=extent)
         ax2.set_title('Overlay')
         format_axes(ax2)
+        draw_grid(ax2)
 
         plt.suptitle(title)
 
