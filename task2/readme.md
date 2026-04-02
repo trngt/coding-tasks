@@ -32,12 +32,40 @@
 
 ### Workflow
 
-1. Load datasets
-2. Load model
-3. Compute embeddings
-4. Compute mitochondrial embeddings
-5. Compare mitochondria
-6. Compare mitochondria across data sets
+1. Load model
+
+	- HF authentication
+
+2. Load datasets
+	- Compute slices
+	- Subset to relevant slices (ones with mitochondria)
+	- Create a mapping of mitochondria to slice:
+		- Preserve the slice with the greatest coverage
+		- Filter out small mitochondria (noisey)
+			- Plot the distribution of mitochondria sizes
+
+3. Per-mitochondria embeddings
+
+	i. Compute embeddings for a single slice (decision point)
+		- Allows for validation at the image-level, what the embedding distances look like for a mitochondria?
+	ii. Compute embeddings for mitochondria (decision point)
+		- Will still need to compute against 2D images.
+
+4. Analysis:
+	
+	i. Validation: Mitochondria vs non-mitochondria:
+		- Plot of selected mitochondria vs background of image
+		- Plot of selected mitochondria vs other image
+
+	i. Datasets as a whole:
+		- (not Plotting all mitochondria Dimensionality reduction (PCA, UMAP, t-SNE)?
+
+	ii. Compare single mitochondria to dataset
+		- Distance/variation from this mitochondria?
+
+	iii. Compare single mitochondria across data sets
+		- Distance/variation from this mitochondria?
+
 
 ### Class structure
 
@@ -52,10 +80,16 @@
 
 ## Discussion
 
-## Project Limitations
+### Project Limitations
 
-## Image resolution and determining patch size
+### Decisions
 
-## Multiple Queries
+### Dense Embeddings
 
-## Proposal for Fine-tuning
+### Slicing and subsetting
+
+### Image resolution and determining patch size
+
+### Multiple Queries
+
+### Proposal for Fine-tuning
