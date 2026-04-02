@@ -96,22 +96,28 @@ class EmbeddingsManager:
 
     def plot_distances_to_reference(self):
         import matplotlib.pyplot as plt
+        from src.visualizer import format_microscopy_ax, compute_extents
 
         # Plot the mask against the em data to ensure masking is performed properly
         em_slice_data = self.slc_em_data
 
+        extent = compute_extents(self.data_manager, self.slc)
+
         fig = plt.figure(figsize=(12, 3))
         plt.subplot(1, 3, 1)
-        plt.imshow(em_slice_data, cmap='Grays')
+        plt.imshow(em_slice_data, cmap='Grays', extent=extent)
         plt.title("EM data")
+        format_microscopy_ax(plt.gca(), self.data_manager, self.slc)
 
         plt.subplot(1, 3, 2)
-        plt.imshow(em_slice_data * self.mitochondria_segment_mask, cmap='Grays')
+        plt.imshow(em_slice_data * self.mitochondria_segment_mask, cmap='Grays', extent=extent)
         plt.title("Selection mask")
+        format_microscopy_ax(plt.gca(), self.data_manager, self.slc)
 
         plt.subplot(1, 3, 3)
-        plt.imshow(self.slc_embedding_distances, cmap='Grays')
+        plt.imshow(self.slc_embedding_distances, cmap='Grays', extent=extent)
         plt.title("Distances to reference")
+        format_microscopy_ax(plt.gca(), self.data_manager, self.slc)
 
 
 def _compute_patch_embeddings(model, x):

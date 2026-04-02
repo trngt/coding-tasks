@@ -75,43 +75,20 @@ class Visualizer:
         x_nm_per_pixel, y_nm_per_pixel, z_nm_per_pixel = tuple(dimensions)
         nm_per_microns = 1000
 
-        extent = [slc.x.start*x_nm_per_pixel/nm_per_microns, 
-                  slc.x.stop*x_nm_per_pixel/nm_per_microns,
-                  slc.y.start*y_nm_per_pixel/nm_per_microns, 
-                  slc.y.stop*y_nm_per_pixel/nm_per_microns]
-
-        def format_axes(ax):
-            """Format the axes for each imshow with the same labels"""
-            ax.set_xlabel(f"{extent[1]-extent[0]:.1f} μm, {slc.x.stop-slc.x.start} px")
-            ax.set_ylabel(f"{extent[3]-extent[2]:.1f} μm, {slc.y.stop-slc.y.start} px")
-
-        # Draw the grid
-        patch_size = 16 # todo: fixed based on DINOv3 patch size
-        x_patch_um = patch_size * x_nm_per_pixel / nm_per_microns
-        y_patch_um = patch_size * y_nm_per_pixel / nm_per_microns
-        x_grid_lines = np.arange(extent[0], extent[1], x_patch_um)
-        y_grid_lines = np.arange(extent[2], extent[3], y_patch_um)
-        def draw_grid(ax):
-            for x in x_grid_lines:
-                ax.axvline(x, color='red', linewidth=0.25, alpha=0.1)
-            for y in y_grid_lines:
-                ax.axhline(y, color='red', linewidth=0.25, alpha=0.1)
+        extent = compute_extents(self.data_manager, slc)
 
         ax0.imshow(em_slice, cmap='gray', extent=extent)
         ax0.set_title('EM')
-        format_axes(ax0)
-        draw_grid(ax0)
+        format_microscopy_ax(ax0, self.data_manager, slc)
 
         ax1.imshow(seg_out, cmap=cmap, norm=norm, extent=extent)
         ax1.set_title('Segmentation')
-        draw_grid(ax1)
-        format_axes(ax1)
+        format_microscopy_ax(ax1, self.data_manager, slc)
 
         ax2.imshow(em_slice, cmap='gray', extent=extent)
         ax2.imshow(seg_out, cmap=cmap, norm=norm, alpha=0.4, extent=extent)
         ax2.set_title('Overlay')
-        format_axes(ax2)
-        draw_grid(ax2)
+        format_microscopy_ax(ax2, self.data_manager, slc)
 
         plt.suptitle(title)
 
@@ -170,3 +147,42 @@ class Visualizer:
 
         plotter.add_mesh(plane, color="white", opacity=0.4, show_edges=False)
         plotter.show(title="Segmentation — voxel render", jupyter_backend="static")
+
+def compute_extents(data_manager, slc):
+    dimensions = data_manager.em_data.data.attrs['pixelResolution']['dimensions']
+    x_nm_per_pixel, y_nm_per_pixel, z_nm_per_pixel = tuple(dimensions)
+    nm_per_microns = 1000
+
+    extent = [slc.x.start*x_nm_per_pixel/nm_per_microns, 
+                  slc.x.stop*x_nm_per_pixel/nm_per_microns,
+                  slc.y.start*y_nm_per_pixel/nm_per_microns, 
+                  slc.y.stop*y_nm_per_pixel/nm_per_microns]
+    return extent
+
+def format_microscopy_ax(ax, data_manager, slc):
+
+    # Compute extents in nm
+    dimensions = data_manager.em_data.data.attrs['pixelResolution']['dimensions']
+    x_nm_per_pixel, y_nm_per_pixel, z_nm_per_pixel = tuple(dimensions)
+    nm_per_microns = 1000
+
+    extent = compute_extents(data_manager, slc)
+
+    def format_axes(ax):
+        """Format the axes for each imshow with the same labels"""
+        ax.set_xlabel(f"{extent[1]-extent[0]:.1f} μm, {slc.x.stop-slc.x.start} px")
+        ax.set_ylabel(f"{extent[3]-extent[2]:.1f} μm, {slc.y.stop-slc.y.start} px")
+
+    # Draw the grid
+    patch_size = 16 # todo: fixed based on DINOv3 patch size
+    x_patch_um = patch_size * x_nm_per_pixel / nm_per_microns
+    y_patch_um = patch_size * y_nm_per_pixel / nm_per_microns
+    x_grid_lines = np.arange(extent[0], extent[1], x_patch_um)
+    y_grid_lines = np.arange(extent[2], extent[3], y_patch_um)
+    def draw_grid(ax):
+        for x in x_grid_lines:
+            ax.axvline(x, color='red', linewidth=0.25, alpha=0.1)
+        for y in y_grid_lines:
+            ax.axhline(y, color='red', linewidth=0.25, alpha=0.1)
+
+    draw_grid(ax)
