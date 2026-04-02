@@ -11,7 +11,7 @@ class DataManager:
     """
 
     def __init__(self, group_url: str, segmentation_url: str, em_resolution: str,
-            segmentation_resolution: str):
+            segmentation_resolution: str, name: str):
 
         # Initialize the EM dataset
         self.em_data = EMData(group_url, em_resolution)
@@ -22,3 +22,4 @@ class DataManager:
         # Load the data for each
         self.em_data.load()
         self.segmentation_data.load()
+        self.name = name

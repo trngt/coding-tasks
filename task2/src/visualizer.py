@@ -2,6 +2,10 @@ from .slice import Slice3D
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 import numpy as np
+from scipy.spatial.distance import cdist
+import matplotlib.cm as cm
+from sklearn.manifold import TSNE
+
 
 class Visualizer:
     """Plots EM slices, segmentation slices, and overlays.
@@ -187,3 +191,133 @@ def format_microscopy_ax(ax, data_manager, slc):
 
     format_axes(ax)
     draw_grid(ax)
+
+
+def create_cosine_distance_matrix(embeddings):
+    """
+    Compute and plot a pairwise cosine distance matrix as a heatmap.
+    """
+    embeddings = np.asarray(embeddings, dtype=float)
+    n = embeddings.shape[0]
+
+    # ── 1. Normalise rows → cosine distance = 1 - dot product ─────────────
+    norms = np.linalg.norm(embeddings, axis=1, keepdims=True)
+    norms = np.where(norms == 0, 1, norms)          # guard against zero vectors
+    embeddings_normed = embeddings/norms
+    dist_matrix = cdist(embeddings_normed, embeddings_normed, metric='cosine')
+    np.fill_diagonal(dist_matrix, 0.0)              # fix any floating-point noise on diagonal
+    return dist_matrix
+
+
+def plot_distance_matrix(dist_matrix, labels=None, cmap='Reds',
+    title='Mitochondria Cosine Distance Matrix', figsize=(5, 4)):
+    # ── 2. Build figure ────────────────────────────────────────────────────
+    fig, ax = plt.subplots(figsize=figsize)
+    im = ax.imshow(dist_matrix, cmap=cmap, aspect='auto', vmin=0, vmax=1)
+
+    cbar = fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
+    cbar.set_label('Cosine Distance  (0 = identical, 1 = orthogonal)', fontsize=10)
+
+    # ── 3. Tick labels ─────────────────────────────────────────────────────
+    if labels is not None:
+        ax.set_xticks(range(n))
+        ax.set_yticks(range(n))
+        ax.set_xticklabels(labels, rotation=45, ha='right', fontsize=8)
+        ax.set_yticklabels(labels, fontsize=8)
+    else:
+        ax.set_xlabel('Mitochondrion Index', fontsize=11)
+        ax.set_ylabel('Mitochondrion Index', fontsize=11)
+
+    ax.set_title(title, fontsize=13, fontweight='bold', pad=12)
+    plt.tight_layout()
+    plt.show()
+
+    return dist_matrix, fig, ax
+
+
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+from sklearn.manifold import TSNE
+from sklearn.preprocessing import normalize
+
+
+def plot_tsne(embeddings, labels=None, color_by=None, perplexity=30, n_iter=1000,
+              metric='cosine', title='Mitochondria t-SNE Projection',
+              figsize=(5, 4), cmap='plasma', point_size=30, random_state=42):
+    """
+    Reduce embeddings to 2-D with t-SNE and plot the projection.
+    """
+    embeddings = np.asarray(embeddings, dtype=float)
+    n = len(embeddings)
+
+    # ── 1. Fit t-SNE ───────────────────────────────────────────────────────
+    if metric == 'cosine':
+        # Pass a precomputed cosine distance matrix for accuracy
+        normed = normalize(embeddings, norm='l2')
+        dist_matrix = 1.0 - (normed @ normed.T)          # shape (n, n)
+        np.fill_diagonal(dist_matrix, 0.0)
+        np.clip(dist_matrix, 0, None, out=dist_matrix)   # guard float negatives
+
+        tsne = TSNE(
+            n_components=2,
+            perplexity=min(perplexity, n - 1),
+            # n_iter=n_iter,
+            metric='precomputed',
+            random_state=random_state,
+            init='random',                # required when metric='precomputed'
+        )
+        embedding_2d = tsne.fit_transform(dist_matrix)
+    else:
+        tsne = TSNE(
+            n_components=2,
+            perplexity=min(perplexity, n - 1),
+            n_iter=n_iter,
+            metric=metric,
+            random_state=random_state,
+            init='pca',
+        )
+        embedding_2d = tsne.fit_transform(embeddings)
+
+    # ── 2. Plot ────────────────────────────────────────────────────────────
+    fig, ax = plt.subplots(figsize=figsize)
+
+    if labels is not None:
+        unique_labels = list(dict.fromkeys(labels))
+        palette = cm.get_cmap(cmap, len(unique_labels))
+        label_to_color = {lbl: palette(i) for i, lbl in enumerate(unique_labels)}
+
+        for lbl in unique_labels:
+            mask = np.array(labels) == lbl
+            ax.scatter(
+                embedding_2d[mask, 0], embedding_2d[mask, 1],
+                c=[label_to_color[lbl]], s=point_size,
+                label=lbl, alpha=0.85, edgecolors='none',
+            )
+        ax.legend(title='Group', bbox_to_anchor=(1.02, 1), loc='upper left',
+                  framealpha=0.3, fontsize=8)
+
+    elif color_by is not None:
+        color_by = np.asarray(color_by, dtype=float)
+        sc = ax.scatter(
+            embedding_2d[:, 0], embedding_2d[:, 1],
+            c=color_by, cmap=cmap, s=point_size, alpha=0.85, edgecolors='none',
+        )
+        cbar = fig.colorbar(sc, ax=ax, fraction=0.046, pad=0.04)
+        cbar.set_label('Value', fontsize=10)
+
+    else:
+        ax.scatter(
+            embedding_2d[:, 0], embedding_2d[:, 1],
+            c=np.arange(n), cmap=cmap, s=point_size, alpha=0.85, edgecolors='none',
+        )
+
+    ax.set_xlabel('t-SNE 1', fontsize=11)
+    ax.set_ylabel('t-SNE 2', fontsize=11)
+    ax.set_title(f'{title}\n(perplexity={perplexity}, n_iter={n_iter})', fontsize=12,
+                 fontweight='bold', pad=12)
+    ax.set_aspect('equal')
+    plt.tight_layout()
+    plt.show()
+
+    return embedding_2d, fig, ax

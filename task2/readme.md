@@ -70,8 +70,11 @@
 ### Class structure
 
 - Data manager
+	- Loads the EM and segmentation data from S3.
 - Slice generator
-- Embeddings manager (currently dual-role: computes embeddings, and analyzes embeddings for a mitochondria)
+	- Generates the initial slicing of the data set volume into equal sized image patches (e.g. 512x512)
+- Embeddings manager
+	- Handles dataset-scale embedding compute at both full (dense) and patch resolution.
 - New class ideas: 
 	- Mitochondrial embeddings manager (computes per-mitochondria embeddings for a dataset)
 	- Data Comparison Analyzer
