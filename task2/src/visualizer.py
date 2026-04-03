@@ -106,6 +106,48 @@ class Visualizer:
         plt.tight_layout()
         plt.show()
 
+    def plot_mito_mask(self, slc: Slice3D, z_index: int, title: str = None,
+            highlight_mito_id: int = None, alpha: float = 0.75, ax=None):
+        """Plot EM data masked by segmentation, highlighting mitochondria.
+        """
+        em_slice = self.data_manager.em_data.data.isel(
+            z=z_index,
+            y=slc.y,
+            x=slc.x,
+        ).compute()
+
+        seg_slice = self.data_manager.segmentation_data.data.isel(
+            z=z_index,
+            y=slc.y,
+            x=slc.x,
+        ).compute()
+
+        # Build boolean mask: True where there is no mitochondria (to be blacked out)
+        if highlight_mito_id is not None:
+            non_mito_mask = seg_slice.values != highlight_mito_id
+        else:
+            non_mito_mask = seg_slice.values == 0
+
+        # RGBA mask: black + opaque where non-mito, fully transparent where mito
+        mask_rgba = np.zeros((*non_mito_mask.shape, 4), dtype=np.float32)
+        mask_rgba[non_mito_mask] = [0, 0, 0, alpha]   # black, semi-opaque
+        mask_rgba[~non_mito_mask] = [0, 0, 0, 0]       # transparent
+
+        extent = compute_extents(self.data_manager, slc)
+
+        if ax is None:
+            fig, ax = plt.subplots(1, 1, figsize=(4, 4))
+
+        ax.imshow(em_slice, cmap='gray', extent=extent)
+        ax.imshow(mask_rgba, extent=extent)
+
+        if title is None:
+            title = f"z:{slc.z.start}, y:{slc.y.start}-{slc.y.stop}, x:{slc.x.start}-{slc.x.stop}"
+
+        ax.set_title(title)
+        format_microscopy_ax(ax, self.data_manager, slc)
+
+
     def plot_segmentation_3d_voxels(self, slc: Slice3D, z_plane: int):
         """Renders the segmentation volume as coloured voxels using PyVista.
 
