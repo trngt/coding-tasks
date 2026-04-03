@@ -40,9 +40,15 @@ The project is organized into several components. The most important are describ
 - `EmbeddingsManager` / `embeddings.py` - Computes the embedding for a dataset at patch or dense resolution.
 - `Visualizer` / `visualizer.py` - Contains various visualization code of the EM and segmentation data.
 
-## Discussion
+## Analysis
 
-### Project Limitations
+### Validation of mitochondrial embeddings
+
+### Within-data set single mitochondrion analysis
+
+### Across data set mitochondrian analysis
+
+## Discussion
 
 ### Slicing and subsetting
 
@@ -65,7 +71,7 @@ The project is organized into several components. The most important are describ
 ### Multiple Queries
 
 - Use case: capture variation within datasets
-- Meta-mitochondria that captures a robust representative per-dataset mitochondria.
+- Meta-mitochondria that captures a robust representative per-dataset mitochondria. <mark>Continue building out ideas here.</mark>
 
 ### Proposal for Fine-tuning
 
