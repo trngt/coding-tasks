@@ -9,3 +9,6 @@ from .math_helpers import pad_slice_to_size
 from .embeddings import EmbeddingsManager
 from .slice_analyzer import SliceAnalyzer
 from .visualizer import Visualizer
+from .mito_embedding_builder import MitoEmbeddingBuilder
+from .reference_analyzer import ReferenceAnalyzer
+from .dataset_pipeline import DatasetPipeline
