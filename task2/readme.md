@@ -5,7 +5,7 @@ Advancement in electron microscopy (EM) technology have driven major breakthroug
 
 We leverage two datasets from HHMI-Janelia's OpenOrganelle project with mitochondria segmented by COSEM. We use Meta's pre-trained DINOv3 model's to capture semantic mitochondria embeddings. 
 
-Using these embeddings, we can: (1) demonstrate DINOv3's capabilities of capturing semantic embeddings of mitochondria and (2) analyze within data set variation and compare that variation to a second dataset. **todo: find a more clear way to develop the second idea.**
+Using these embeddings, we can: (1) demonstrate DINOv3's capabilities of capturing semantic embeddings of mitochondria and (2) analyze within data set variation and compare that variation to a second dataset. <mark>**todo: find a more clear way to develop the second idea.**</mark>
 
 ## Project structure
 
