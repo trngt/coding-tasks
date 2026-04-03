@@ -36,7 +36,7 @@ class SliceAnalyzer:
         else:
             from src.embeddings import _upsample_patch_to_dense
             h, w = self.slc.size()
-            self.embeddings = _upsample_patch_to_dense(embeddings, w, h)
+            self.embeddings = _upsample_patch_to_dense(embeddings, h, w)
 
         self.is_dense = is_dense
 
@@ -58,13 +58,13 @@ class SliceAnalyzer:
         """Compute cosine distance from the reference vector to every pixel."""
         from scipy.spatial.distance import cosine
 
-        W, H = self.embeddings.shape[2], self.embeddings.shape[3]
-        flat = self.embeddings[0].reshape((-1, W * H)).T  # (W*H, D)
+        H, W = self.embeddings.shape[2], self.embeddings.shape[3]
+        flat = self.embeddings[0].reshape((-1, H * W)).T  # (H*W, D)
 
         self.distance_map = np.array([
             cosine(flat[i], self.reference_vector)
-            for i in range(W * H)
-        ]).reshape(W, H)
+            for i in range(H * W)
+        ]).reshape(H, W)
 
         return self.distance_map
 
