@@ -17,15 +17,16 @@ class MitoEntry:
     """
 
     def __init__(self, mito_id: int, slice_index: int, slc: Slice3D,
-                 num_pixels: int):
+                 num_pixels: int, bbox: tuple):
         self.mito_id = mito_id
         self.slice_index = slice_index  # index into the original slices list
         self.slc = slc
         self.num_pixels = num_pixels    # pixels occupied by this mito in slc
+        self.bbox = bbox                # (y_min, y_max, x_min, x_max) in patch-local coords
 
     def __repr__(self):
         return (f"MitoEntry(id={self.mito_id}, slice_index={self.slice_index}, "
-                f"num_pixels={self.num_pixels}")
+                f"num_pixels={self.num_pixels}, bbox={self.bbox})")
 
 
 class MitoSliceManager:
@@ -109,11 +110,16 @@ class MitoSliceManager:
             if mito_id == 0:
                 continue
 
+            rows, cols = np.where(seg_patch == mito_id)
+            bbox = (int(rows.min()), int(rows.max()),
+                    int(cols.min()), int(cols.max()))  # (y_min, y_max, x_min, x_max)
+
             entries.append(MitoEntry(
                 mito_id=int(mito_id),
                 slice_index=slice_index,
                 slc=slc,
                 num_pixels=int(num_pixels),
+                bbox=bbox,
             ))
 
         return entries

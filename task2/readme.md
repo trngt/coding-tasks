@@ -1,32 +1,11 @@
 
 # Analyzing EM Images of Mitochondria using DINOv3 Embeddings
 
-## Overview
+Advancement in electron microscopy (EM) technology have driven major breakthroughs in biomedical research. However, working large imaging datasets generated from EM require labor-intensive and accurate labeling. Here, we demonstrate the capabilities of a pre-trained self-supervised model for characterizing mitochondria in two datasets.
 
-### 1. What is EM and what it help us learn?
+We leverage two datasets from HHMI-Janelia's OpenOrganelle project with mitochondria segmented by COSEM. We use Meta's pre-trained DINOv3 model's to capture semantic mitochondria embeddings. 
 
-- Advancements: Mapping connectome
-- Imaging structures of proteins revealing cellular dynamics in 3D space
-
-### 2. Brief overview of the problem.
-
-- EM datasets are large and labor-intensive to label.
-- Advancements have been made segmented large volumentric datasets of organelles (COSEM).
-	- Uses 3D convolutional neural networks (U-Nets).
-- However, these labels require large amounts of labeled data.
-- And may not capture semantically meaningful structures of organelle, creating challenges in generalizing to unseen data.
-
-### 2. Data sets and Models
-
-- We can use the existing datasets (COSEM) where mitochondria were segmented to drive analysis segmentation modeling using SSL methods, DINOv3.
-- DINOv3, SSL ViT model that captures rich general semantic embeddings, trained on X datasets.
-
-
-### 2. What we can do at a high-level.
-
-- We can apply DINOv3, to capture the semantic embeddings of labeled mitochondrial data.
-- Then analyze how well these embeddings capture the semantic ultrastructure of mitochondria within a dataset and across multiple datasets.
-
+Using these embeddings, we can: (1) demonstrate DINOv3's capabilities of capturing semantic embeddings of mitochondria and (2) analyze within data set variation and compare that variation to a second dataset. **todo: find a more clear way to develop the second idea.**
 
 ## Project structure
 

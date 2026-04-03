@@ -75,7 +75,7 @@ class SliceAnalyzer:
 
         extent = compute_extents(self.data_manager, self.slc)
 
-        fig, axes = plt.subplots(1, 3, figsize=(12, 3))
+        fig, axes = plt.subplots(1, 3, figsize=(9, 3))
 
         axes[0].imshow(self.em_data, cmap='Grays', extent=extent)
         axes[0].set_title('EM data')
