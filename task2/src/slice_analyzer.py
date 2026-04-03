@@ -40,7 +40,7 @@ class SliceAnalyzer:
 
         self.is_dense = is_dense
 
-    def select_mitochondria(self, mito_id: int):
+    def select_mitochondrion(self, mito_id: int):
         """Set the active mitochondrion and compute its reference vector.
 
         Builds a binary mask for mito_id, masks the dense embeddings,
@@ -77,15 +77,15 @@ class SliceAnalyzer:
 
         fig, axes = plt.subplots(1, 3, figsize=(9, 3))
 
-        axes[0].imshow(self.em_data, cmap='Grays', extent=extent)
+        axes[0].imshow(self.em_data, cmap='Grays_r', extent=extent)
         axes[0].set_title('EM data')
         format_microscopy_ax(axes[0], self.data_manager, self.slc)
 
-        axes[1].imshow(self.em_data * self.mito_mask, cmap='Grays', extent=extent)
+        axes[1].imshow(self.em_data * self.mito_mask, cmap='Grays_r', extent=extent)
         axes[1].set_title('Selection mask')
         format_microscopy_ax(axes[1], self.data_manager, self.slc)
 
-        axes[2].imshow(self.distance_map, cmap='Grays', extent=extent)
+        axes[2].imshow(self.distance_map, cmap='viridis_r', extent=extent)
         axes[2].set_title('Distances to reference')
         format_microscopy_ax(axes[2], self.data_manager, self.slc)
 

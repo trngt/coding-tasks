@@ -21,11 +21,29 @@ class MitoEntry:
         self.mito_id = mito_id
         self.slice_index = slice_index  # index into the original slices list
         self.slc = slc
+        self.z = slc.z.start            # absolute z index in the volume
         self.num_pixels = num_pixels    # pixels occupied by this mito in slc
         self.bbox = bbox                # (y_min, y_max, x_min, x_max) in patch-local coords
 
+    def to_slice(self) -> Slice3D:
+        """Create a tight Slice3D around this mitochondrion.
+
+        Converts the patch-local bbox coordinates to absolute volume
+        coordinates by offsetting with the parent patch origin.
+        """
+        y_min, y_max, x_min, x_max = self.bbox
+        abs_y_min = self.slc.y.start + y_min
+        abs_y_max = self.slc.y.start + y_max + 1  # +1 for exclusive slice end
+        abs_x_min = self.slc.x.start + x_min
+        abs_x_max = self.slc.x.start + x_max + 1
+        return Slice3D(
+            z=slice(self.z, self.z),
+            y=slice(abs_y_min, abs_y_max),
+            x=slice(abs_x_min, abs_x_max),
+        )
+
     def __repr__(self):
-        return (f"MitoEntry(id={self.mito_id}, slice_index={self.slice_index}, "
+        return (f"MitoEntry(id={self.mito_id}, z={self.z}, slice_index={self.slice_index}, "
                 f"num_pixels={self.num_pixels}, bbox={self.bbox})")
 
 
@@ -41,17 +59,21 @@ class MitoSliceManager:
     """
 
     def __init__(self, data_manager: DataManager, slices: List[Slice3D],
-                 min_pixels: int = 100):
+                 min_pixels: int = 100, boundary_margin: int = 8):
         """
         Parameters:
             data_manager: Provides access to segmentation data.
             slices: All candidate patches from SliceGenerator.generate().
             min_pixels: Minimum number of pixels a mito must occupy in its
                 best slice to be retained.
+            boundary_margin: Pixels from the patch edge within which a mito
+                is considered a boundary mito and excluded. Default is 8
+                (half a ViT patch size of 16).
         """
         self.data_manager = data_manager
         self.slices = slices
         self.min_pixels = min_pixels
+        self.boundary_margin = boundary_margin
         self.catalog: Dict[int, MitoEntry] = {}
 
     def build(self) -> Dict[int, MitoEntry]:
@@ -78,9 +100,20 @@ class MitoSliceManager:
             # Retrieve the mitochondria stats for a segment
             entries = self._compute_mito_stats(seg_patch, slice_index, slc)
 
+            H, W = seg_patch.shape
+
             # For each entry, replace or add to the catalog
             # if the size is greater
             for entry in entries:
+                y_min, y_max, x_min, x_max = entry.bbox
+                m = self.boundary_margin
+                is_boundary = (
+                    y_min <= m or y_max >= H - 1 - m or
+                    x_min <= m or x_max >= W - 1 - m
+                )
+                if is_boundary:
+                    continue
+
                 existing = self.catalog.get(entry.mito_id)
                 if (entry.num_pixels >= self.min_pixels) and \
                    (existing is None or entry.num_pixels > existing.num_pixels):

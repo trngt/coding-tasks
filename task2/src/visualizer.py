@@ -51,7 +51,8 @@ class Visualizer:
 
         return cmap, norm, clim, seg_out
 
-    def plot_segmentation_example(self, slc: Slice3D, z_index: int, title: str = ""):
+    def plot_segmentation_example(self, slc: Slice3D, z_index: int, title: str = None,
+        highlight_mito_id: int = None):
         """Plot EM, segmentation, and overlay for a given slice at z_index.
 
         Args:
@@ -69,6 +70,9 @@ class Visualizer:
             y=slc.y,
             x=slc.x,
         ).compute()
+
+        if highlight_mito_id is not None:
+            seg_slice = seg_slice * (seg_slice == highlight_mito_id)
 
         cmap, norm, clim, seg_out = self._build_seg_colormap(seg_slice.values, remap=True)
 
@@ -93,6 +97,9 @@ class Visualizer:
         ax2.imshow(seg_out, cmap=cmap, norm=norm, alpha=0.4, extent=extent)
         ax2.set_title('Overlay')
         format_microscopy_ax(ax2, self.data_manager, slc)
+
+        if title is None:
+            title = f"z:{slc.z.start}, y:{slc.y.start}-{slc.y.stop}, x:{slc.x.start}-{slc.x.stop}"
 
         plt.suptitle(title)
 

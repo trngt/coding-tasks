@@ -5,6 +5,7 @@ from .segmentation_data import SegmentationData
 from .data_manager import DataManager
 from .slice_generator import SliceGenerator
 from .mito_slice_manager import MitoSliceManager, MitoEntry
+from .math_helpers import pad_slice_to_size
 from .embeddings import EmbeddingsManager
 from .slice_analyzer import SliceAnalyzer
 from .visualizer import Visualizer
