@@ -11,40 +11,24 @@ Using these embeddings, we can: (1) demonstrate DINOv3's capabilities of capturi
 
 ### Workflow
 
-1. Load model
+1. Load DINOv3 vision model <mark>todo: via hugging face API, currently using a local copy</mark>
 
-	- HF authentication
+2. Load OpenOrganelle datasets.
+	For each dataset, compute slices of the volumetric data. Because of the 3D nature of the data, we slice the data as partitioned 2D images across the z-plane.
 
-2. Load datasets
-	- Compute slices
-	- Subset to relevant slices (ones with mitochondria)
-	- Create a mapping of mitochondria to slice:
-		- Preserve the slice with the greatest coverage
-		- Filter out small mitochondria (noisey)
-			- Plot the distribution of mitochondria sizes
+	then subset to relevant slices with whole mitochondria. Mitochondrion are assigned to relevant slices, for eventual embeddings computation. Remove slices from the set if they do not contain a mitochondrion.
 
-3. Per-mitochondria embeddings
+3. Compute per-mitochondria embeddings. 
+	
+	For each slice, compute per patch-level embeddings. For each mitochondrion, retrieve the patch-level embeddings for its relevant slice and upsample to dense embeddings using bilinear interpolation <span></mark>todo: here, we'll need to incorporate/add in the dense embeddings justification/step.</mark>
 
-	i. Compute embeddings for a single slice (decision point)
-		- Allows for validation at the image-level, what the embedding distances look like for a mitochondria?
-	ii. Compute embeddings for mitochondria (decision point)
-		- Will still need to compute against 2D images.
+	Using the COSEM segmentation labels, summarize each mitochondrion's embeddings into a single embeddings vectors as an average.
 
 4. Analysis:
 	
-	i. Validation: Mitochondria vs non-mitochondria:
-		- Plot of selected mitochondria vs background of image
-		- Plot of selected mitochondria vs other image
+	With the embeddings, we can analyze each dataset taking a single reference mitochondrion, and evaluating the nearest and furthest mitochondrion from the reference.
 
-	i. Datasets as a whole:
-		- (not Plotting all mitochondria Dimensionality reduction (PCA, UMAP, t-SNE)?
-
-	ii. Compare single mitochondria to dataset
-		- Distance/variation from this mitochondria?
-
-	iii. Compare single mitochondria across data sets
-		- Distance/variation from this mitochondria?
-
+	Additionally, we can use this reference mitochondrion to assess the generalized embeddings onto the second dataset's mitochondria embeddings.
 
 ### Class structure
 
