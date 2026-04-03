@@ -44,14 +44,33 @@ The project is organized into several components. The most important are describ
 
 ### Project Limitations
 
-### Decisions
+### Slicing and subsetting
+
+- Computing resources limitation (M1 Pro Laptop with 16 GB of Memory)
+	- Limits analysis to representative sample of slices and mitochondria per dataset.
+- Mitochondrial embeddings may be distorted at boundaries of image slices.
 
 ### Dense Embeddings
 
-### Slicing and subsetting
+- Dense embeddings are computed simply with bilinear interpolation. <mark>These can be improved with a comprehensive dense decoder, leveraging DINOv3's intermediate layers.</mark>
 
-### Image resolution and determining patch size
+### Determining patch size
+
+- Fixed patch size defined by DINOv3's Vision models.
+- Image resolution and image size is configurable.
+- Trade-off: high-resolution embeddings and computational cost
+- Capture mitochondria by size (0.5-1 microns). 
+	- Multiple patches ~8-16 patches suitable for capturing ultrastructure.
 
 ### Multiple Queries
 
+- Use case: capture variation within datasets
+- Meta-mitochondria that captures a robust representative per-dataset mitochondria.
+
 ### Proposal for Fine-tuning
+
+- LoRA: Freeze DINOv3 weights and add low-rank adapters. Strongly supported in literature: large complex models are prime for quick and accurate fine-tuning with very small adapaters and few trainable weights for specific downstream tasks. <mark>Evaluate literature on LoRA details.</mark>
+- Phase 1: DINO, SSL training on large labeled and unlabeled dataset.
+- Phase 2: Continue training on labeled dataset to accurately segment known mitochondria. <mark>Evaluate literature on fine-tuning training with labeled and unlabeled data</mark>
+- Evaluation: Evaluate quality of fine-tuning using known labels. Assess visually against new data sets <mark>Revist literature for SSL model evaluation.</mark>
+
