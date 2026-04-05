@@ -24,7 +24,7 @@ class EmbeddingsManager:
         Use for visualization and per-slice inspection.
         """
         x = _load_data_for_dino(self.data_manager, slc)
-        return _compute_dense_dpt(x, self.model)
+        return _compute_dense_embeddings(x, self.model)
 
     def compute_patch_embedding(self, slc: Slice3D) -> np.ndarray:
         """Compute patch-resolution embedding for a single slice.
@@ -32,7 +32,7 @@ class EmbeddingsManager:
         Returns (1, D, H_p, W_p). Not stored — caller owns the result.
         """
         x = _load_data_for_dino(self.data_manager, slc)
-        return _compute_patch_dpt(x, self.model)
+        return _compute_patch_embeddings(x, self.model)
 
     def compute_patch_embeddings(self, slices: List[Slice3D]) -> List[np.ndarray]:
         """Workflow 1: Compute patch-resolution embeddings for all slices.
@@ -47,7 +47,7 @@ class EmbeddingsManager:
 
         for i, slc in enumerate(slices):
             x = _load_data_for_dino(self.data_manager, slc)
-            patch_map = _compute_patch_dpt(x, self.model)
+            patch_map = _compute_patch_embeddings(x, self.model)
             all_patch_maps.append(patch_map)
 
             if i % 20 == 0:
@@ -102,13 +102,12 @@ def _load_data_for_dino(data_manager, slc):
     return x
 
 
-def _compute_patch_dpt(img, model):
+def _compute_patch_embeddings(img, model):
     """
-    Compute patch-resolution embeddings using multi-layer DPT-style aggregation.
-    Returns (B, D, H_p, W_p) — no upsampling to input resolution.
+    Compute patch-level embeddings (with option to aggregate intermediate layers)
     """
     total_blocks = len(model.blocks)
-    n_taps = 2
+    n_taps = 1
     indices = np.arange(total_blocks - n_taps - 1, total_blocks - 1, 1)
 
     intermediates = model.get_intermediate_layers(
@@ -120,16 +119,16 @@ def _compute_patch_dpt(img, model):
 
     layer_maps = [patch_map for patch_map, _cls in intermediates]
 
+    # Average the layers (applicable if multiple layers are retrieved)
     patch_map = torch.stack(layer_maps, dim=0).mean(dim=0)  # (B, D, H_p, W_p)
     patch_map = F.normalize(patch_map, dim=1)
 
     return patch_map.detach().numpy()
 
 
-def _compute_dense_dpt(img, model):
+def _compute_dense_embeddings(img, model):
     """
-    Compute dense embeddings using multi-layer DPT-style feature aggregation,
-    leveraging DINOv2's built-in get_intermediate_layers().
+    Compute dense embeddings using a simple bilinear interpolation.
     """
     W, H = img.shape[2], img.shape[3]
 
@@ -137,12 +136,13 @@ def _compute_dense_dpt(img, model):
     w_patches  = W // patch_size
     h_patches  = H // patch_size
 
-    # Collect model blocks, 4 total intermediate layers
+    # Collect model blocks, last layer
     total_blocks = len(model.blocks)
-    n_taps = 3
+    n_taps = 1
 
-    # Retrieve the last layers
-    indices = np.arange(total_blocks-n_taps-1, total_blocks-1, 1)
+    # Retrieve the n last layers (1-4 appear to have similar results with this simple
+    # interpolation method)
+    indices = np.arange(total_blocks-n_taps-1, total_blocks-1, n_taps)
 
     # Extract intermediate layers
     intermediates = model.get_intermediate_layers(

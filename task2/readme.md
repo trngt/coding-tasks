@@ -56,9 +56,14 @@ The project is organized into several components. The most important are describ
 	- Limits analysis to representative sample of slices and mitochondria per dataset.
 - Mitochondrial embeddings may be distorted at boundaries of image slices.
 
-### Dense Embeddings
+### Producing dense embeddings
 
-- Dense embeddings are computed simply with bilinear interpolation. <mark>These can be improved with a comprehensive dense decoder, leveraging DINOv3's intermediate layers.</mark>
+There are two relevant approaches that I've found to produce dense embeddings, with training and without training. In the DINOv2 paper (Oquab, 2021), the authors train a linear and SOTA pipeline for semantic segmentation. However, these approaches require the setup of a training pipeline specifically for computing these embeddings. 
+
+For this, proof-of-concept work, I've chosen to follow the approach described in (González-Marfil, 2025).
+In their work, they demonstrate accurate semantic segmentation masks for microscopy imaging from this simple interpolation approach.
+
+I apply a bilinear interpolation directly from the patch embeddings to scale the final per-slice embeddings to the input resolution. Given, the resolution of my patches relative the mitochondria size, this has approach has been adequate for this first iteration of the project.
 
 ### Determining patch size
 
