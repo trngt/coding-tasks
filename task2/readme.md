@@ -111,8 +111,13 @@ Dense embeddings were computed as simple bilinear interpolation. This calculatio
 
 ### Multiple Queries
 
-- Use case: capture variation within datasets
-- Meta-mitochondria that captures a robust representative per-dataset mitochondria. <mark>Continue building out ideas here.</mark>
+Each dataset can be evaluated more comprehensively by incorporating multiple queries mitochondria in analysis. Two reasons for multiple queries can be defined.
+
+First, we can select multiple mitochondrion and take a simple average across a dataset to create a meta-mitochondria, representative of the entire dataset. The same analyses described above can be applied. Each additional mitochondrion are independently retrieved then averaged into a single reference embeddings. Then, nearest and furthest neighbors are evaluated.
+
+Second, multiple mitochondria can be analyzed to characterize the morphological diversity of the dataset. To characterize this diversity, we randomly select mitochondria and compute pairwise L2 distances between their embeddings across many random draws. The resulting distance distribution characterizes the dataset's morphological spread. 
+
+The mean pairwise distance provides a diversity metric enabling direct quantitative comparison across datasets—a larger mean indicates greater heterogeneity.
 
 ### Proposal for Fine-tuning
 
@@ -124,6 +129,12 @@ Training will be performed in two phase:
 **Phase 2** – Supervised Segmentation Fine-Tuning. Building on Phase 1 representations, we fine-tune on the labeled subset using a supervised segmentation objective. This two-stage curriculum exploits unlabeled data to regularize learned features before committing to annotation-dependent optimization, consistent with semi-supervised learning best practices.
 
 **Evaluation** - Fine-tuning quality will be assessed quantitatively against held-out labeled data using standard segmentation metrics (IoU, Dice). Phase 1 will additionally be evaluated via linear probing prior to supervised fine-tuning.
+
+# AI/LLM Usage statement
+
+Claude and Claude Code were used throughout this project for research, idea development, code implementation, and text editing. I used Claude to identify relevant research papers and to develop ideas, with Claude pointing me toward useful background reading along the way.
+
+For coding, I designed the high-level structure and workflow, while Claude assisted in scaffolding function implementations and migrating exploratory analyses from notebooks into classes.
 
 # Bibliography
 
