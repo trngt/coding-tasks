@@ -94,7 +94,6 @@ class ReferenceAnalyzer:
         )
         plt.xlabel("L2 distance")
         plt.tight_layout()
-        plt.show()
         plt.savefig(f"{self.pipeline.output_dir}/{self.pipeline.name}_distances.png", dpi=200)
 
     def closest(self, n: int = 10):
@@ -161,7 +160,15 @@ class ReferenceAnalyzer:
                 spine.set_linewidth(spine_width)
 
             z_index = slc.z.start
-            self.vis.plot_mito_mask(slc, z_index=z_index, highlight_mito_id=plot_mito_id, ax=ax)
+
+            try:
+                self.vis.plot_mito_mask(slc, z_index=z_index, highlight_mito_id=plot_mito_id, ax=ax
+                )
+            except ValueError as e:
+                # Slice resolved to empty data (zero-size array); skip this panel
+                ax.set_visible(False)
+                continue
+
             ax.set_xticks([])
             ax.set_yticks([])
             ax.set_ylabel("")
