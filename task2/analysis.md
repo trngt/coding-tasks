@@ -66,7 +66,7 @@ The 10 nearest mitochondrion appeared to show similar shape and structure to the
 The 10 furthest, however, show much more diverse array of shapes and sizes. No relevant pattern within the structures were discerned across the closest and furthest mitochondria.
  
 <div align="center">
-	<img src="https://github.com/trngt/coding-tasks/blob/main/task2/figures/3_mus-liver_furthest_10.png" width="70%"/>
+	<img src="https://github.com/trngt/coding-tasks/blob/main/task2/figures/4_mus-liver_furthest_10.png" width="70%"/>
   <p>Figure 4. 10 furthest mitochondria.</p>
 </div>
 
