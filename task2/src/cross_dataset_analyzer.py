@@ -133,13 +133,13 @@ class CrossDatasetAnalyzer:
         n_target = len(self.distances_df)
 
         plt.figure(figsize=(5, 3))
-        plt.hist(self.distances_source_df.l2_distance, bins=50, alpha=0.6,
+        plt.hist(self.distances_source_df.l2_distance, bins=50, alpha=0.6, density=True,
                  color=self.color_source, label=f"{self.source_pipeline.name} (n={n_source})")
-        plt.hist(self.distances_df.l2_distance, bins=50, alpha=0.6,
+        plt.hist(self.distances_df.l2_distance, bins=50, alpha=0.6, density=True,
                  color=self.color_target, label=f"{self.target_pipeline.name} (n={n_target})")
         plt.title("Distances to reference mitochondrion", fontsize=14, fontweight="demi")
         plt.xlabel("L2 distance")
-        plt.ylabel("Count")
+        plt.ylabel("Density")
         plt.legend()
         plt.tight_layout()
         plt.savefig(f"{self.source_pipeline.output_dir}/combined_distances.png", dpi=200)
@@ -215,7 +215,6 @@ class CrossDatasetAnalyzer:
 
         plt.suptitle(title, fontsize=14, fontweight="demi")
         plt.tight_layout()
-        plt.show()
 
     def plot_series_combined(self, entries, pad_size: int = 200, title: str = ""):
         """Plot a row of mito thumbnails from the combined population.
@@ -272,7 +271,6 @@ class CrossDatasetAnalyzer:
 
         plt.suptitle(title, fontsize=14, fontweight="demi")
         plt.tight_layout()
-        plt.show()
 
     def run(self, reference_mito_id_index: int = 0):
         """Run the full cross-dataset analysis for a single reference mito.

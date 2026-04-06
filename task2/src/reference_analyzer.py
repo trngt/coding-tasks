@@ -86,13 +86,14 @@ class ReferenceAnalyzer:
 
         n = len(self.distances_df)
         plt.figure(figsize=(4, 2.5))
-        plt.hist(self.distances_df.l2_distance, bins=50)
+        plt.hist(self.distances_df.l2_distance, bins=50, density=True)
         plt.title(
             f"Mitochondria embedding\ndistances to reference, n={n}",
             fontsize=16,
             fontweight="demi",
         )
         plt.xlabel("L2 distance")
+        plt.ylabel("Density")
         plt.tight_layout()
         plt.savefig(f"{self.pipeline.output_dir}/{self.pipeline.name}_distances.png", dpi=200)
 

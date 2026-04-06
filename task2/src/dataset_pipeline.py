@@ -156,7 +156,7 @@ class DatasetPipeline:
         summary_path = os.path.join(self.output_dir, f"{self.name}_catalog_summary.txt")
         with open(summary_path, "w") as f:
             f.write(f"Original slices: {len(self.original_slices)}\n")
-            f.write(f"Subset slices: {len(self.slices)}\n")
+            f.write(f"Subset slices: {len(self.slices)} ({len(self.slices)/len(self.original_slices*100):.3f}%)\n")
             f.write(f"Mitochondria in catalog: {len(self.mito_catalog)}\n")
 
         return self.mito_catalog
@@ -216,7 +216,7 @@ class DatasetPipeline:
         print("Running single dataset analysis....")
         self.vis = Visualizer(self.data_manager)
         self.reference_analyzer = ReferenceAnalyzer(self, self.vis)
-        self.reference_analyzer.run(reference_mito_id_index=2)
+        self.reference_analyzer.run(reference_mito_id_index=0)
 
     def mito_ids(self) -> List[int]:
         """Return mito IDs retained in the catalog."""

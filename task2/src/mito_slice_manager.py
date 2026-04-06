@@ -59,13 +59,13 @@ class MitoSliceManager:
     """
 
     def __init__(self, data_manager: DataManager, slices: List[Slice3D],
-                 min_pixels: int = 100, boundary_margin: int = 8):
+                 min_pixels: int = 1024, boundary_margin: int = 8):
         """
         Parameters:
             data_manager: Provides access to segmentation data.
             slices: All candidate patches from SliceGenerator.generate().
             min_pixels: Minimum number of pixels a mito must occupy in its
-                best slice to be retained.
+                best slice to be retained. 1024 ~ 4 total patches (16x16)
             boundary_margin: Pixels from the patch edge within which a mito
                 is considered a boundary mito and excluded. Default is 8
                 (half a ViT patch size of 16).
