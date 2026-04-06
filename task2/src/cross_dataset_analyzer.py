@@ -142,7 +142,7 @@ class CrossDatasetAnalyzer:
         plt.ylabel("Count")
         plt.legend()
         plt.tight_layout()
-        plt.savefig(f"{self.source_pipeline.output_dir}/{self.source_pipeline.name}_combined_distances.png", dpi=200)
+        plt.savefig(f"{self.source_pipeline.output_dir}/combined_distances.png", dpi=200)
 
     def closest(self, n: int = 10):
         """Return the n closest mitos in the target dataset to the reference.
@@ -176,11 +176,11 @@ class CrossDatasetAnalyzer:
 
     def plot_closest_combined(self, k: int = 20):
         self.plot_series_combined(self.closest_combined(k), title=f"{k} nearest (combined)")
-        plt.savefig(f"{self.source_pipeline.output_dir}/{self.source_pipeline.name}_combined_closest_{k}.png", dpi=200)
+        plt.savefig(f"{self.source_pipeline.output_dir}/combined_closest_{k}.png", dpi=200)
 
     def plot_furthest_combined(self, k: int = 20):
         self.plot_series_combined(self.furthest_combined(k), title=f"{k} furthest (combined)")
-        plt.savefig(f"{self.source_pipeline.output_dir}/{self.source_pipeline.name}_combined_furthest_{k}.png", dpi=200)
+        plt.savefig(f"{self.source_pipeline.output_dir}/combined_furthest_{k}.png", dpi=200)
 
     def plot_series(self, entries, pad_size: int = 200, title: str = ""):
         """Plot a row of representative mito thumbnails from the target dataset.
@@ -282,7 +282,7 @@ class CrossDatasetAnalyzer:
                 as the reference.
         """
 
-        self.set_reference(self.source_pipeline.reference_mito_id)
+        self.set_reference(self.source_pipeline.reference_analyzer.reference_mito_id)
         self.compute_distances()
         self.compute_combined_distances()
         self.plot_distance_distribution()

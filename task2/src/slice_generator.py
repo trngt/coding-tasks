@@ -51,6 +51,14 @@ class SliceGenerator:
 
         self.patches = []
         for z, ys, xs in product(z_indices, y_slices, x_slices):
+            # Skip boundary patches that don't fill the full patch size —
+            # partial tiles cause shape mismatches between EM and segmentation
+            # data (which live at different resolutions and may not share the
+            # exact same physical extent).
+            if (ys.stop - ys.start) != self.patch_size:
+                continue
+            if (xs.stop - xs.start) != self.patch_size:
+                continue
             patch_definition = Slice3D(slice(z, z), ys, xs)
             self.patches.append(patch_definition)
 

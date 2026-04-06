@@ -37,7 +37,7 @@ def run(output_dir: str = "./output/"):
     os.makedirs(output_dir, exist_ok=True)
 
     # Configuration for number of random samples
-    num_random_samples = 10
+    num_random_samples = 100
 
     # ------------------------------------------------------------------
     # 1. Load model
