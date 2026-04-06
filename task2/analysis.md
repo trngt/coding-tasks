@@ -119,6 +119,7 @@ The mean pairwise distance provides a diversity metric enabling direct quantitat
 We propose freezing pretrained DINOv3 weights and introducing Low-Rank Adaptation (LoRA) modules at selected attention layers. LoRA has demonstrated strong performance in adapting large vision transformers to downstream tasks with minimal trainable parameters, reducing compute and overfitting risk while preserving pretrained representations. Low rank selection and adapter placement will be guided by ablation experiments.
 
 Training will be performed in two phase:
+
 **Phase 1** – Self-Supervised Pretraining. The model will first undergo DINO-style self-supervised training on a combined labeled and unlabeled dataset. This phase leverages the full data distribution to learn robust, domain-specific features relevant to mitochondrial ultrastructure without requiring dense annotations.
 
 **Phase 2** – Supervised Segmentation Fine-Tuning. Building on Phase 1 representations, we fine-tune on the labeled subset using a supervised segmentation objective. This two-stage curriculum exploits unlabeled data to regularize learned features before committing to annotation-dependent optimization, consistent with semi-supervised learning best practices.
