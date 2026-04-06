@@ -40,18 +40,17 @@ class EmbeddingsManager:
         Returns a list of (1, D, H_p, W_p) arrays held in memory.
         """
         from .timer import Timer
+        from tqdm import tqdm
 
         timer = Timer()
         n = len(slices)
         all_patch_maps = []
 
-        for i, slc in enumerate(slices):
+        for slc in (pbar := tqdm(slices, desc="Computing patch embeddings")):
             x = _load_data_for_dino(self.data_manager, slc)
             patch_map = _compute_patch_embeddings(x, self.model)
             all_patch_maps.append(patch_map)
-
-            if i % 20 == 0:
-                print(f"{i}/{n} - {timer.get_time()}")
+            pbar.set_postfix(elapsed=timer.get_time())
 
         self.all_patch_maps = all_patch_maps
         return self.all_patch_maps

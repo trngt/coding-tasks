@@ -47,27 +47,26 @@ class MitoEmbeddingBuilder:
             self.all_mito_vectors: mito_id → reference vector (D,).
         """
         from src.timer import Timer
+        from tqdm import tqdm
 
         timer = Timer()
         self.all_mito_vectors = {}
         last_slice_index = None
         mito_ids = list(self.mito_catalog.keys())
-        n = len(mito_ids)
 
-        for i, mito_id in enumerate(mito_ids):
-            entry = self.mito_catalog[mito_id]
+        with tqdm(mito_ids, desc="Computing mito vectors") as pbar:
+            for mito_id in pbar:
+                entry = self.mito_catalog[mito_id]
 
-            if entry.slice_index != last_slice_index:
-                slc = self.slices[entry.slice_index]
-                patch_embeddings = self.all_patch_embeddings[entry.slice_index]
-                self.slice_analyzer.set_slice(slc)
-                self.slice_analyzer.set_embeddings(patch_embeddings, is_dense=False)
-                last_slice_index = entry.slice_index
+                if entry.slice_index != last_slice_index:
+                    slc = self.slices[entry.slice_index]
+                    patch_embeddings = self.all_patch_embeddings[entry.slice_index]
+                    self.slice_analyzer.set_slice(slc)
+                    self.slice_analyzer.set_embeddings(patch_embeddings, is_dense=False)
+                    last_slice_index = entry.slice_index
 
-            self.slice_analyzer.select_mitochondrion(mito_id)
-            self.all_mito_vectors[mito_id] = self.slice_analyzer.reference_vector
-
-            if i % 10 == 0 or i == n - 1:
-                timer.print_time(f"{i}/{n}")
+                self.slice_analyzer.select_mitochondrion(mito_id)
+                self.all_mito_vectors[mito_id] = self.slice_analyzer.reference_vector
+                pbar.set_postfix(elapsed=timer.get_time())
 
         return self.all_mito_vectors
