@@ -1,5 +1,5 @@
 
-# Analysis
+# Analyzing EM Images of Mitochondria using DINOv3 Embeddings - Detailed Analysis
 
 ## Methodology
 
