@@ -17,9 +17,15 @@ conda create -f environment.yml
 conda activate mito-mia
 ```
 
+Ensure that the hugging face authentication token is loaded. This command will prompt the user for an authentication token with read access to the DINOv3 models on HuggingFace.
+```
+hf auth login
+```
+
 ## Usage
 
 Basic usage runs the entire python in the `mito_mia.py` file. This analysis runs against the mus-liver and mus-kidney datasets.
+
 ```bash
 python mito_mia.py
 ```
