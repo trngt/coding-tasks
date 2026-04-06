@@ -34,7 +34,7 @@ python mito_mia.py
 
 The general workflow (1) loads the data, (2) processes it into relevant mitochondrial embeddings, and (3) analyzes the embeddings across and within the datasets. Details are as follows:
 
-1. Load DINOv3 vision model <mark>todo: via hugging face API, currently using a local copy</mark>
+1. Load DINOv3 vision model via HuggingFace.
 2. Load OpenOrganelle datasets.
 	For each dataset, compute slices of the volumetric data. Because of the 3D nature of the data, we partition the volume into 2D images across the z-axis.
 
