@@ -1,5 +1,6 @@
 import numpy as np
 from .slice_analyzer import SliceAnalyzer
+import matplotlib.pyplot as plt
 
 
 class ReferenceAnalyzer:
@@ -55,6 +56,7 @@ class ReferenceAnalyzer:
     def plot_reference(self):
         """Plot EM image, selection mask, and distance map for the reference mito."""
         self.slice_analyzer.plot()
+        plt.savefig(f"{self.pipeline.output_dir}/{self.pipeline.name}_selected.png", dpi=200)
 
     def compute_distances(self):
         """Compute L2 distances from the reference vector to all mito vectors.
@@ -93,6 +95,7 @@ class ReferenceAnalyzer:
         plt.xlabel("L2 distance")
         plt.tight_layout()
         plt.show()
+        plt.savefig(f"{self.pipeline.output_dir}/{self.pipeline.name}_distances.png", dpi=200)
 
     def closest(self, n: int = 10):
         """Return the n closest mitos (excluding the reference itself).
@@ -118,9 +121,11 @@ class ReferenceAnalyzer:
 
     def plot_closest(self, k=10):
         self.plot_series(self.closest(k), title=f"{k} nearest mitochondria")
+        plt.savefig(f"{self.pipeline.output_dir}/{self.pipeline.name}_closest_{k}.png", dpi=200)
 
     def plot_furthest(self, k=10):
         self.plot_series(self.furthest(k), title=f"{k} furthest mitochondria")
+        plt.savefig(f"{self.pipeline.output_dir}/{self.pipeline.name}_furthest_{k}.png", dpi=200)
 
     def plot_series(self, entries, pad_size: int = 200, title=""):
         """Plot a row of representative mito images for the given distance entries.
@@ -143,12 +148,17 @@ class ReferenceAnalyzer:
             ax = axs[i]
             entry = self.pipeline.mito_catalog[plot_mito_id]
             slc = entry.to_slice()
+            spine_width = 3
 
             try:
                 slc = pad_slice_to_size(slc, pad_size, pad_size)
             except ValueError:
-                print(f"Slice {slc}, exceeds padding size parameter, reverting to plot entire slice.")
+                slc = pad_slice_to_size(slc, pad_size*2, pad_size*2)
+                spine_width = 6
                 pass
+
+            for spine in ax.spines.values():
+                spine.set_linewidth(spine_width)
 
             z_index = slc.z.start
             self.vis.plot_mito_mask(slc, z_index=z_index, highlight_mito_id=plot_mito_id, ax=ax)
@@ -160,7 +170,6 @@ class ReferenceAnalyzer:
 
         plt.suptitle(title, fontsize=16, fontweight='demi')
         plt.tight_layout()
-        plt.show()
 
     def run(self, reference_mito_id_index=0):
         """Run the entire workflow for a single dataset reference

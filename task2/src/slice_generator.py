@@ -36,7 +36,9 @@ class SliceGenerator:
             """Create the tiles slices along a dimension, 
             given the total size and the patch size"""
             return [slice(i, min(i + tile_size, size)) 
-                for i in range(self.inset, size-self.inset, tile_step)]
+
+                # End early, to create whole tiles
+                for i in range(self.inset, size-self.inset-tile_step, tile_step)]
 
         # Volume dimensions
         Z, Y, X = self.data_manager.em_data.data.shape

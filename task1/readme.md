@@ -10,40 +10,6 @@ The issues with the project include: (1) hard-coded configuration, (2) local sto
 
 ### Proposal solutions
 
-The solution, I propose, will include three main ideas: (1) model run configurations, (2) server-side data storage, and (3) code version control. First, we will create a way to define model run configurations, including architecture, attention mechanisms, and data storage. Using this configuration, we can create a simple way to run the model with various configurations. The output naming and storage will also reflect these varying configurations for run comparisons. Second, store the data and run outputs server-side to allow for collaboration. Researchers can define and implement different run configurations and run the model server-side, storing the output in a unified place for comparison. This idea is also linked to reproducibility, as a unified location for storing inputs and outputs will create a clear, reproducible pipeline from data loading to final model run output. Finally, store the project code on a server-side code repository. This will allow collaborators to define and implement configurations to the model server-side. Importantly, it is critical to include a git identifier (commit hash/version tag) on model run outputs for reproducibility. This solution unifies shared components and creates a configurable workflow for a streamlined collaborative research process.
+The solution, I propose, will span two broad ideas: (1) reproducibility through configuration and version control, and (2) server-side data storage. First, we will create configuration files—defined in yml or json—that specify model run parameters, including architecture, attention mechanisms, and data sources. Using these configurations, we can create a simple way to run the model with various setups. Output names and storage reflect each configuration for straightforward run comparisons. Second, we will store the project code in a server-side repository, allowing collaborators to define and implement configurations together, and to extend the model architecture in a unified place. Critically, each model run output should include a git identifier—a commit hash or version tag—linking results to the exact code state that produced them. Together, these two ideas create a configurable, traceable workflow for collaborative research.
 
-```
-
-Issues for reference:
-1. Hard-coded items: model architecture, dataset, and output - comparison is not currently possible.
-2. Model and code is local only - Difficulty in collaboration.
-3. Reproducibility: environment specification (conda or Docker)
-
-Solutions for reference:
-1. Model configuration definitions.
-	(model definitions, yml or json configuration files)
-2. Server-side data and run environment.
-	- Necessity of server-side data (expand)
-	- Run environment enforces strict reproducibility, and aids in collaboration.
-3. Git code repository.
-	- Collaboration across model definitions and configuration.
-	- Clear workflow and branching
-	- Clear tagging/hash commits for model runs for reproducibility
-```
-
-```
-Notes for reference:
-
-High-level ideas to incorporate:
-1. Server-side data reasoning. (Add in solution)
-2. Server-side running (Add in solution)
-3. Need for Docker or conda environment for consistent server-side running.
-
-Expand the solutions to a fourth paragraph, decide on which details to split.
-
-Outstanding questions: 
-- Where in the code base does the configuration apply? 
-- What does model running on the server look like?
-- Why does server-side running enable organized collaboration?
-- What does collaboration entail? Model running? Model architecture definitions? Likely both.
-```
+Finally, we need to address unified data storage and run environment. Storing data and run outputs server-side is a necessity for collaboration—it ensures that all researchers are working from the same inputs and outputs in a unified location for comparison. This also addresses the organizational issues that arise from running the model across different machines. Alongside this, we will define a conda environment (including python version and non-python environment libraries) to enforce a consistent and reproducible execution environment across all collaborators. For further reproducibility, configuration can be further extended to a Docker configuration.

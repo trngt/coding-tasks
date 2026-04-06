@@ -4,21 +4,19 @@ channels:
   - conda-forge
 dependencies:
   - python=3.12
+  - numpy
   - fsspec=2026.2.0
   - s3fs=2026.2.0
   - zarr=3.1.5
+  - xarray
   - dask=2026.3.0
   - pytorch>=2.7.1
   - torchvision
   - transformers>=4.56.0
-  - jupyterlab
+  - scipy
+  - scikit-learn
+  - pandas
   - matplotlib-base
+  - jupyterlab
   - pip:
-    - pyvista
-    # For 3d interactive plots with pyvista
-    - trame
-    - trame-vuetify
-    - trame-vtk
-    - nest_asyncio2
-    - ipywidgets   
-
+    - fibsem-tools

@@ -68,8 +68,12 @@ class SliceAnalyzer:
 
         return self.distance_map
 
-    def plot(self):
-        """Plot EM, selection mask, and distance map side by side."""
+    def plot(self, save_path: str = None):
+        """Plot EM, selection mask, and distance map side by side.
+
+        Parameters:
+            save_path: Optional file path to save the figure before displaying.
+        """
         import matplotlib.pyplot as plt
         from .visualizer import format_microscopy_ax, compute_extents
 
@@ -90,3 +94,5 @@ class SliceAnalyzer:
         format_microscopy_ax(axes[2], self.data_manager, self.slc)
 
         plt.tight_layout()
+        if save_path:
+            fig.savefig(save_path, bbox_inches='tight', dpi=150)

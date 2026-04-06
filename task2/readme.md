@@ -83,7 +83,7 @@ To validate the selected mitochondrial embeddings, I applied a simple metric to 
 
 In this figure, I plot the raw EM data (left), the selection of the reference mitochondrion (middle), and the per-pixel distances to the reference mitochondrion (right).
 
-Reassuringly, the boundaries of the mitochondria in within the slice were identified. However, there appears to a be locality bias to the distance calculations. Areas closer to the reference mitochondrion also appear closer in distance the reference mitochondrion embeddings. In future work, we can design a methodology to normalize for this locality bias. <mark></mark>
+Reassuringly, the boundaries of the mitochondria in within the slice were identified. However, there appears to a be locality bias to the distance calculations. Areas closer to the reference mitochondrion also appear closer in distance the reference mitochondrion embeddings. In future work, we can design a methodology to normalize for this locality bias. <mark>todo: develop ideas for normalization</mark>
 
 ### Within-data set single mitochondrion analysis
 

@@ -44,6 +44,8 @@ class DatasetPipeline:
         inset: int = 0,
         min_pixels: int = 100,
         boundary_margin: int = 8,
+        output_dir: str = './output',
+        num_random_samples: int = 10
     ):
         """
         Parameters:
@@ -69,6 +71,8 @@ class DatasetPipeline:
         self.inset = inset
         self.min_pixels = min_pixels
         self.boundary_margin = boundary_margin
+        self.output_dir = output_dir
+        self.num_random_samples = num_random_samples
 
         self.data_manager: Optional[DataManager] = None
         self.original_slices: Optional[List[Slice3D]] = None
@@ -133,8 +137,8 @@ class DatasetPipeline:
         """
         from .mito_slice_manager import MitoSliceManager
 
-        print("todo: Randomly selecting 10 slices for quick analysis")
-        num_slices_search = 10
+        print(f"Randomly selecting {self.num_random_samples} slices for quick analysis")
+        num_slices_search = self.num_random_samples
         np.random.seed(123)
         slice_indices = np.random.choice(len(self.original_slices), size=num_slices_search)
         self.slices = [self.original_slices[i] for i in slice_indices]
