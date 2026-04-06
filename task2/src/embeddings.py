@@ -46,7 +46,7 @@ class EmbeddingsManager:
         n = len(slices)
         all_patch_maps = []
 
-        for slc in (pbar := tqdm(slices, desc="Computing patch embeddings")):
+        for slc in (pbar := tqdm(slices, desc="")):
             x = _load_data_for_dino(self.data_manager, slc)
             patch_map = _compute_patch_embeddings(x, self.model)
             all_patch_maps.append(patch_map)

@@ -77,50 +77,35 @@ class MitoSliceManager:
         self.catalog: Dict[int, MitoEntry] = {}
 
     def build(self) -> Dict[int, MitoEntry]:
-        """Scan all slices and populate the catalog.
-
-        For each slice, loads the segmentation patch and computes per-mito
-        pixel counts. Replaces the existing catalog entry for a mito if the
-        current slice has greater area. Drops mitos below min_pixels.
-
-        Returns:
-            The populated catalog dict.
-        """
         from src.timer import Timer
+        from tqdm import tqdm
 
         timer = Timer()
         self.catalog = {}
-        n = len(self.slices)
 
-        for slice_index, slc in enumerate(self.slices):
+        with tqdm(enumerate(self.slices), desc="", total=len(self.slices)) as pbar:
+            for slice_index, slc in pbar:
 
-            # Get the segmented data for a slice
-            seg_patch = self.data_manager.segmentation_data.get_slice(slc)
+                seg_patch = self.data_manager.segmentation_data.get_slice(slc)
+                entries = self._compute_mito_stats(seg_patch, slice_index, slc)
+                H, W = seg_patch.shape
 
-            # Retrieve the mitochondria stats for a segment
-            entries = self._compute_mito_stats(seg_patch, slice_index, slc)
+                for entry in entries:
+                    y_min, y_max, x_min, x_max = entry.bbox
+                    m = self.boundary_margin
+                    is_boundary = (
+                        y_min <= m or y_max >= H - 1 - m or
+                        x_min <= m or x_max >= W - 1 - m
+                    )
+                    if is_boundary:
+                        continue
 
-            H, W = seg_patch.shape
+                    existing = self.catalog.get(entry.mito_id)
+                    if (entry.num_pixels >= self.min_pixels) and \
+                       (existing is None or entry.num_pixels > existing.num_pixels):
+                        self.catalog[entry.mito_id] = entry
 
-            # For each entry, replace or add to the catalog
-            # if the size is greater
-            for entry in entries:
-                y_min, y_max, x_min, x_max = entry.bbox
-                m = self.boundary_margin
-                is_boundary = (
-                    y_min <= m or y_max >= H - 1 - m or
-                    x_min <= m or x_max >= W - 1 - m
-                )
-                if is_boundary:
-                    continue
-
-                existing = self.catalog.get(entry.mito_id)
-                if (entry.num_pixels >= self.min_pixels) and \
-                   (existing is None or entry.num_pixels > existing.num_pixels):
-                    self.catalog[entry.mito_id] = entry
-
-            if slice_index % 100 == 0 or slice_index == (n-1):
-                timer.print_time(f"{slice_index}/{n}")
+                pbar.set_postfix(elapsed=timer.get_time(), catalog_size=len(self.catalog))
 
         return self.catalog
 

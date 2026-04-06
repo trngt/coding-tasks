@@ -54,7 +54,7 @@ class MitoEmbeddingBuilder:
         last_slice_index = None
         mito_ids = list(self.mito_catalog.keys())
 
-        with tqdm(mito_ids, desc="Computing mito vectors") as pbar:
+        with tqdm(mito_ids, desc="") as pbar:
             for mito_id in pbar:
                 entry = self.mito_catalog[mito_id]
 
