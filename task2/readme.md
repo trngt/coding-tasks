@@ -116,11 +116,14 @@ Dense embeddings were computed as simple bilinear interpolation. This calculatio
 
 ### Proposal for Fine-tuning
 
-- LoRA: Freeze DINOv3 weights and add low-rank adapters. Strongly supported in literature: large complex models are prime for quick and accurate fine-tuning with very small adapaters and few trainable weights for specific downstream tasks. <mark>Evaluate literature on LoRA details.</mark>
-- Phase 1: DINO, SSL training on large labeled and unlabeled dataset.
-- Phase 2: Continue training on labeled dataset to accurately segment known mitochondria. <mark>Evaluate literature on fine-tuning training with labeled and unlabeled data</mark>
-- Evaluation: Evaluate quality of fine-tuning using known labels. Assess visually against new data sets <mark>Revist literature for SSL model evaluation.</mark>
+We propose freezing pretrained DINOv3 weights and introducing Low-Rank Adaptation (LoRA) modules at selected attention layers. LoRA has demonstrated strong performance in adapting large vision transformers to downstream tasks with minimal trainable parameters, reducing compute and overfitting risk while preserving pretrained representations. Low rank selection and adapter placement will be guided by ablation experiments.
 
+Training will be performed in two phase:
+**Phase 1** – Self-Supervised Pretraining. The model will first undergo DINO-style self-supervised training on a combined labeled and unlabeled dataset. This phase leverages the full data distribution to learn robust, domain-specific features relevant to mitochondrial ultrastructure without requiring dense annotations.
+
+**Phase 2** – Supervised Segmentation Fine-Tuning. Building on Phase 1 representations, we fine-tune on the labeled subset using a supervised segmentation objective. This two-stage curriculum exploits unlabeled data to regularize learned features before committing to annotation-dependent optimization, consistent with semi-supervised learning best practices.
+
+**Evaluation** - Fine-tuning quality will be assessed quantitatively against held-out labeled data using standard segmentation metrics (IoU, Dice). Phase 1 will additionally be evaluated via linear probing prior to supervised fine-tuning.
 
 # Bibliography
 
