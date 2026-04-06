@@ -17,7 +17,7 @@ import matplotlib
 matplotlib.use("Agg")  # non-interactive backend for saving without display
 import matplotlib.pyplot as plt
 
-from src.model import load_vits16_model,load_vits16_model_hf
+from src.model import load_vits16_model_hf
 from src.dataset_pipeline import DatasetPipeline
 from src.visualizer import Visualizer
 from src.reference_analyzer import ReferenceAnalyzer

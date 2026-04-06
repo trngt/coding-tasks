@@ -106,16 +106,11 @@ def _compute_patch_embeddings(img, model):
     """
     Compute patch-level embeddings (with option to aggregate intermediate layers)
     """
-    total_blocks = len(model.blocks)
+    total_blocks = len(model.model.layer)
     n_taps = 1
     indices = np.arange(total_blocks - n_taps - 1, total_blocks - 1, 1)
 
-    intermediates = model.get_intermediate_layers(
-        img,
-        n=indices,
-        return_class_token=True,
-        reshape=True,
-    )
+    intermediates = get_model_intermediates(img, model, n_taps)
 
     layer_maps = [patch_map for patch_map, _cls in intermediates]
 
@@ -132,12 +127,12 @@ def _compute_dense_embeddings(img, model):
     """
     W, H = img.shape[2], img.shape[3]
 
-    patch_size = model.patch_size
+    patch_size = model.config.patch_size
     w_patches  = W // patch_size
     h_patches  = H // patch_size
 
     # Collect model blocks, last layer
-    total_blocks = len(model.blocks)
+    total_blocks = len(model.model.layer)
     n_taps = 1
 
     # Retrieve the n last layers (1-4 appear to have similar results with this simple
@@ -145,12 +140,7 @@ def _compute_dense_embeddings(img, model):
     indices = np.arange(total_blocks-n_taps-1, total_blocks-1, n_taps)
 
     # Extract intermediate layers
-    intermediates = model.get_intermediate_layers(
-        img,
-        n=indices,               # Early and latter layers of the model for broad and specific
-        return_class_token=True, # (patch_tokens, cls_token) tuples
-        reshape=True,            # directly returns (B, D, H_p, W_p) — no reshape needed!
-    )
+    intermediates = get_model_intermediates(img, model, n_taps)
 
     # Upsample each layer's map to the target resolution
     layer_maps = []
@@ -168,3 +158,39 @@ def _compute_dense_embeddings(img, model):
     dense = F.normalize(dense, dim=1)
 
     return dense.detach().numpy()
+
+
+def get_model_intermediates(img, model, n_taps=1):
+    """
+    Returns intermediate patch maps from the HF DINOv3ViTModel,
+    matching the (patch_map, cls_token) tuple format of get_intermediate_layers().
+
+    Handles models with register tokens by taking the last H_p*W_p tokens
+    as patch tokens, regardless of any prefix tokens (CLS, registers, etc.)
+
+    Returns:
+        List of (patch_map, cls_token) tuples, where:
+            patch_map: (B, D, H_p, W_p)
+            cls_token: (B, D)
+    """
+    total_blocks = len(model.model.layer)
+    indices = np.arange(total_blocks - n_taps - 1, total_blocks - 1, 1)
+
+    B = img.shape[0]
+    H_p = img.shape[2] // model.config.patch_size
+    W_p = img.shape[3] // model.config.patch_size
+    n_patch_tokens = H_p * W_p
+
+    with torch.no_grad():
+        outputs = model(img, output_hidden_states=True)
+
+    intermediates = []
+    for i in indices:
+        hs = outputs.hidden_states[i + 1]           # (B, 1+registers+H_p*W_p, D)
+        cls_token = hs[:, 0, :]                     # (B, D)
+        patch_tokens = hs[:, -n_patch_tokens:, :]   # (B, H_p*W_p, D)
+        D = patch_tokens.shape[-1]
+        patch_map = patch_tokens.permute(0, 2, 1).reshape(B, D, H_p, W_p)
+        intermediates.append((patch_map, cls_token))
+
+    return intermediates

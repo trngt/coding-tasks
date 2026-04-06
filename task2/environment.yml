@@ -20,3 +20,5 @@ dependencies:
   - jupyterlab
   - pip:
     - fibsem-tools
+    - huggingface==0.0.1
+
