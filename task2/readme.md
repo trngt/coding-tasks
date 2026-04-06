@@ -20,7 +20,7 @@ The general workflow (1) loads the data, (2) processes it into relevant mitochon
 	Then subset to relevant slices with whole mitochondria. Mitochondria are assigned to relevant slices for embedding computation. Remove slices from the set if they do not contain a mitochondrion.
 3. Compute per-mitochondria embeddings.
 
-	For each slice, compute patch-level embeddings. For each mitochondrion, retrieve the patch-level embeddings for its relevant slice and upsample to dense embeddings using bilinear interpolation. <mark>todo: incorporate the dense embeddings justification/step.</mark>
+	For each slice, compute patch-level embeddings. For each mitochondrion, retrieve the patch-level embeddings for its relevant slice and upsample to dense embeddings using bilinear interpolation.
 
 	Using the COSEM segmentation labels, summarize each mitochondrion's embeddings into a single embedding vector as an average.
 
@@ -120,3 +120,13 @@ Dense embeddings were computed as simple bilinear interpolation. This calculatio
 - Phase 1: DINO, SSL training on large labeled and unlabeled dataset.
 - Phase 2: Continue training on labeled dataset to accurately segment known mitochondria. <mark>Evaluate literature on fine-tuning training with labeled and unlabeled data</mark>
 - Evaluation: Evaluate quality of fine-tuning using known labels. Assess visually against new data sets <mark>Revist literature for SSL model evaluation.</mark>
+
+
+# Bibliography
+
+1. Dosovitskiy, Alexey, Lucas Beyer, Alexander Kolesnikov, Dirk Weissenborn, Xiaohua Zhai, Thomas Unterthiner, Mostafa Dehghani, et al. 2020. “An Image Is Worth 16x16 Words: Transformers for Image Recognition at Scale.” arXiv [Cs.CV]. https://doi.org/10.48550/ARXIV.2010.11929.
+2. Oquab, Maxime, Timothée Darcet, Théo Moutakanni, Huy Vo, Marc Szafraniec, Vasil Khalidov, Pierre Fernandez, et al. 2023. “DINOv2: Learning Robust Visual Features without Supervision.” arXiv [Cs.CV]. https://doi.org/10.48550/ARXIV.2304.07193.
+3. González-Marfil, Aitor, Estibaliz Gómez-de-Mariscal, and Ignacio Arganda-Carreras. 2025. “DINOSim: Zero-Shot Object Detection and Semantic Segmentation on Microscopy Images.” bioRxiv. https://doi.org/10.1101/2025.03.09.642092.
+4. Hu, Edward J., Yelong Shen, Phillip Wallis, Zeyuan Allen-Zhu, Yuanzhi Li, Shean Wang, Lu Wang, and Weizhu Chen. 2021. “LoRA: Low-Rank Adaptation of Large Language Models.” arXiv [Cs.CL]. arXiv. https://doi.org/10.48550/arXiv.2106.09685.
+5. Ranftl, René, Alexey Bochkovskiy, and Vladlen Koltun. 2021. “Vision Transformers for Dense Prediction.” arXiv [Cs.CV]. https://doi.org/10.48550/ARXIV.2103.13413.
+
