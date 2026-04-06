@@ -40,9 +40,10 @@ Following calculation of per-mitochondrion embeddings. I selected a single mitoc
 
 To validate the selected mitochondrial embeddings, I applied a simple metric to analyze the pixel distances within a microscopy slice. For each pixel embedding in the slice, I plot the distance to the reference mitochondria as a heatmap.
 
-<mark>image reference</mark>
-
-In this figure, I plot the raw EM data (left), the selection of the reference mitochondrion (middle), and the per-pixel distances to the reference mitochondrion (right).
+<div align="center">
+	<img src="https://github.com/trngt/coding-tasks/blob/main/task2/figures/1_mus-liver_selected.png" width="70%"/>
+  <p>Figure 1. Raw EM data (left), the selection of the reference mitochondrion (middle), and the per-pixel distances to the reference mitochondrion (right).</p>
+</div>
 
 Reassuringly, the boundaries of the mitochondria in within the slice were identified. However, there appears to a be locality bias to the distance calculations. Areas closer to the reference mitochondrion also appear closer in distance the reference mitochondrion embeddings. In future work, we can design a methodology to normalize for this locality bias. <mark>todo: develop ideas for normalization</mark>
 
@@ -50,15 +51,48 @@ Reassuringly, the boundaries of the mitochondria in within the slice were identi
 
 After selecting a reference mitochondrion, the distance to every other mitochondria in the dataset was calculated. This allowed me to evaluate the nearest and furthest mitochondrion from the reference. The embeddings appears to characterize the high-level shape and size of the selected mitochondria.
 
-<mark>image reference</mark>
+<div align="center">
+	<img src="https://github.com/trngt/coding-tasks/blob/main/task2/figures/2_mus-liver_distances.png" width="70%"/>
+  <p>Figure 2. Dataset distribution of distances to reference mitochondrion</p>
+</div>
 
 The 10 nearest mitochondrion appeared to show similar shape and structure to the reference.
 
-<mark>image reference</mark>
+<div align="center">
+	<img src="https://github.com/trngt/coding-tasks/blob/main/task2/figures/3_mus-liver_closest_10.png" width="70%"/>
+  <p>Figure 3. 10 nearest mitochondria.</p>
+</div>
 
 The 10 furthest, however, show much more diverse array of shapes and sizes. No relevant pattern within the structures were discerned across the closest and furthest mitochondria.
  
+<div align="center">
+	<img src="https://github.com/trngt/coding-tasks/blob/main/task2/figures/3_mus-liver_furthest_10.png" width="70%"/>
+  <p>Figure 4. 10 furthest mitochondria.</p>
+</div>
+
 ### Across data set mitochondrian analysis
+
+When comparing across two data sets (mus-liver and mus-kidney), we see that the kidney mitochondrion are distributed closer on average to the selected mitochondrion in the liver dataset.
+
+If the segmentation embeddings were biased towards the selected mitochondrion dataset, we would expect the closest mitochondria to be solely in the liver data set. 
+
+However, the 20 closest and 20 furthest mitochondrion across both datasets shows a diversity of distances (random distribution of red:liver and blue:kidney mitochondrion).
+
+<div align="center">
+	<img src="https://github.com/trngt/coding-tasks/blob/main/task2/figures/5_combined_distances.png" width="70%"/>
+  <p>Figure 5. 10 Distances to reference mitochondrion across both datasets.</p>
+</div>
+
+
+<div align="center">
+	<img src="https://github.com/trngt/coding-tasks/blob/main/task2/figures/6_combined_closest_20.png" width="70%"/>
+  <p>Figure 6. 20 closest mitochondria across both datasets.</p>
+</div>
+
+<div align="center">
+	<img src="https://github.com/trngt/coding-tasks/blob/main/task2/figures/7_combined_furthest_20.png" width="70%"/>
+  <p>Figure 7. 20 furthest mitochondria across both datasets.</p>
+</div>
 
 ## Discussion
 
