@@ -55,6 +55,10 @@ The general workflow (1) loads the data, (2) processes it into relevant mitochon
 
 The project is organized into several components. The most important are described below:
 
+- `mito_mia.py` - Entry point. Loads the model, runs both dataset pipelines, and runs the cross-dataset analysis. All figures are saved to `output/`.
+- `DatasetPipeline / dataset_pipeline.py` - Orchestrates the end-to-end single-dataset workflow: data loading, slice generation, catalog building, embedding computation, and per-mito vector extraction. Call `run()` to execute all steps in sequence, or call individual steps (`load_data`, `generate_slices`, `build_catalog`, `compute_embeddings`, `build_mito_vectors`) independently.
+- `ReferenceAnalyzer / reference_analyzer.py` - Within-dataset analysis. Given a fully run `DatasetPipeline`, selects a reference mitochondrion and computes L2 distances from its embedding vector to all other mitos in the same dataset. Produces distance distribution plots and thumbnail grids of the closest and furthest mitochondria.
+- `CrossDatasetAnalyzer / cross_dataset_analyzer.py` - Cross-dataset analysis. Takes a source and target `DatasetPipeline`, uses the source's reference mito embedding, and ranks all mitos in both datasets by distance to that reference. Produces overlaid distance histograms and combined thumbnail grids color-coded by dataset of origin.
 - `DataManager / data_manager.py` - Loads the EM and segmentation data from S3, keeping track of important attributes like  image resolution.
 - `SliceGenerator / slice_generator.py` - Generates the initial even 2D slices of the EM data volume these images are of equal pre-defined sizes (e.g. 128x128, 224x224, 512x512).
 - `MitoSliceManager / mito_slice_manager.py` - Creates a catalog of mitochondria segmentation IDs to relevant 2D slices. This manager keeps track of the final set of mitochondria to analyze within a data set.

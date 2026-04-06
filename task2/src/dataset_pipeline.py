@@ -151,6 +151,14 @@ class DatasetPipeline:
         )
         self.mito_catalog = manager.build()
 
+        import os
+        os.makedirs(self.output_dir, exist_ok=True)
+        summary_path = os.path.join(self.output_dir, f"{self.name}_catalog_summary.txt")
+        with open(summary_path, "w") as f:
+            f.write(f"Original slices: {len(self.original_slices)}\n")
+            f.write(f"Subset slices: {len(self.slices)}\n")
+            f.write(f"Mitochondria in catalog: {len(self.mito_catalog)}\n")
+
         return self.mito_catalog
 
     def compute_embeddings(self) -> List[np.ndarray]:
