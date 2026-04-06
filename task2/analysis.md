@@ -72,11 +72,11 @@ The 10 furthest, however, show much more diverse array of shapes and sizes. No r
 
 ### Across data set mitochondrian analysis
 
-When comparing across two data sets (mus-liver and mus-kidney), we see that the kidney mitochondrion are distributed closer on average to the selected mitochondrion in the liver dataset.
+When comparing across two data sets (mus-liver and mus-kidney), we see that the live and kidney mitochondria have similarly distributed distances from the reference mitochondrion (Figure 5: red and blue means are approximately 0.018 with different totals).
 
-If the segmentation embeddings were biased towards the selected mitochondrion dataset, we would expect the closest mitochondria to be solely in the liver data set. 
+However, the closest 20 mitochondrion are primarily selected from the liver set (Figure 6: 14/20 red boxes). This could indicate that the selected mitochondrion are close to a subpopulation of mitochondria, while the remaining mitochondria are distributed similarly away near the mean.
 
-However, the 20 closest and 20 furthest mitochondrion across both datasets shows a diversity of distances (random distribution of red:liver and blue:kidney mitochondrion).
+Also, the furthest mitochondria are distributed primarily in the kidney data set (Figure 7: 16/20 blue boxes), suggesting that embeddings have identified liver-specific mitochondrial embeddings.
 
 <div align="center">
 	<img src="https://github.com/trngt/coding-tasks/blob/main/task2/figures/5_combined_distances.png" width="70%"/>
