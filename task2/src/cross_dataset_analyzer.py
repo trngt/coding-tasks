@@ -64,7 +64,7 @@ class CrossDatasetAnalyzer:
 
         self.slice_analyzer.set_slice(slc)
         self.slice_analyzer.set_embeddings(patch_embeddings, is_dense=False)
-        self.slice_analyzer.select_mitochondrion(mito_id)
+        self.slice_analyzer.select_mitochondrion(mito_id, entry)
         self.slice_analyzer.compute_distance_map()
 
     def plot_reference(self):
