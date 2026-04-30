@@ -53,8 +53,8 @@ class SliceAnalyzer:
         selected = self.embeddings[0, :] * self.mito_mask  # (D, H, W)
         self.reference_vector = selected.mean((1, 2))       # (D,)
 
-        mito_centroid = (mito_entry.bbox[0]+mito_entry.bbox[1])//2, (mito_entry.bbox[2]+mito_entry.bbox[3])//2
-        self.centroid_reference_vector = self.embeddings[0, :, *mito_centroid]
+        self.mito_centroid = (mito_entry.bbox[0]+mito_entry.bbox[1])//2, (mito_entry.bbox[2]+mito_entry.bbox[3])//2
+        self.centroid_reference_vector = self.embeddings[0, :, *self.mito_centroid]
 
         return self.mito_mask, self.reference_vector
 
@@ -70,7 +70,6 @@ class SliceAnalyzer:
 
         H, W = self.embeddings.shape[2], self.embeddings.shape[3]
         flat = self.embeddings[0].reshape((-1, H * W)).T  # (H*W, D)
-
 
         if embedding_mode == 'centroid':
             ref_vector = self.centroid_reference_vector
