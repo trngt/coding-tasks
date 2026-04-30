@@ -68,6 +68,22 @@ class SliceAnalyzer:
 
         return self.distance_map
 
+    def plot_em_only(self):
+        """
+        Plot the EM data only for a slice
+        """
+        import matplotlib.pyplot as plt
+        from .visualizer import format_microscopy_ax, compute_extents
+
+        extent = compute_extents(self.data_manager, self.slc)
+
+        fig, ax = plt.subplots(1, 1, figsize=(9, 3))
+
+        ax.imshow(self.em_data, cmap='Grays_r', extent=extent)
+        ax.set_title('EM data')
+        format_microscopy_ax(ax, self.data_manager, self.slc, grid_alpha=0.5)
+
+
     def plot(self, save_path: str = None):
         """Plot EM, selection mask, and distance map side by side.
 

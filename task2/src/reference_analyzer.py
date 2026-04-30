@@ -13,7 +13,7 @@ class ReferenceAnalyzer:
     Attributes:
         reference_mito_id: The currently selected reference mito id.
         reference_vector: Embedding vector (D,) of the reference mito.
-        distances_df: DataFrame indexed by mito_id with column 'l2_distance',
+        distances_df: DataFrame indexed by mito_id with column 'cosine_distance',
             sorted ascending after compute_distances() is called.
     """
 
@@ -64,19 +64,20 @@ class ReferenceAnalyzer:
         Populates self.distances_df sorted by ascending distance.
 
         Returns:
-            DataFrame indexed by mito_id with column 'l2_distance'.
+            DataFrame indexed by mito_id with column 'cosine_distance'.
         """
         import pandas as pd
         from numpy.linalg import norm
+        from scipy.spatial.distance import cosine
 
         distances = {
-            mito_id: norm(self.reference_vector - vec)
+            mito_id: cosine(self.reference_vector, vec)  # norm(self.reference_vector - vec)
             for mito_id, vec in self.pipeline.all_mito_vectors.items()
         }
         self.distances_df = (
-            pd.DataFrame(distances.items(), columns=["mito_id", "l2_distance"])
+            pd.DataFrame(distances.items(), columns=["mito_id", "cosine_distance"])
             .set_index("mito_id")
-            .sort_values("l2_distance")
+            .sort_values("cosine_distance")
         )
         return self.distances_df
 
@@ -86,7 +87,7 @@ class ReferenceAnalyzer:
 
         n = len(self.distances_df)
         plt.figure(figsize=(4, 2.5))
-        plt.hist(self.distances_df.l2_distance, bins=50, density=True)
+        plt.hist(self.distances_df.cosine_distance, bins=50, density=True)
         plt.title(
             f"Mitochondria embedding\ndistances to reference, n={n}",
             fontsize=16,

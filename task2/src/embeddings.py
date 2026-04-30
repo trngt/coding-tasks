@@ -24,7 +24,7 @@ class EmbeddingsManager:
         Use for visualization and per-slice inspection.
         """
         x = _load_data_for_dino(self.data_manager, slc)
-        return _compute_dense_embeddings(x, self.model)
+        return _compute_dense_embeddings_simple(x, self.model)
 
     def compute_patch_embedding(self, slc: Slice3D) -> np.ndarray:
         """Compute patch-resolution embedding for a single slice.
@@ -109,7 +109,7 @@ def _compute_patch_embeddings(img, model):
     n_taps = 1
     indices = np.arange(total_blocks - n_taps - 1, total_blocks - 1, 1)
 
-    intermediates = get_model_intermediates(img, model, n_taps)
+    intermediates = retrieve_last_model_layers(img, model, n_taps)
 
     layer_maps = [patch_map for patch_map, _cls in intermediates]
 
@@ -120,48 +120,27 @@ def _compute_patch_embeddings(img, model):
     return patch_map.detach().numpy()
 
 
-def _compute_dense_embeddings(img, model):
+def _compute_dense_embeddings_simple(img, model):
     """
     Compute dense embeddings using a simple bilinear interpolation.
     """
     W, H = img.shape[2], img.shape[3]
 
-    patch_size = model.config.patch_size
-    w_patches  = W // patch_size
-    h_patches  = H // patch_size
+    # Extract last layer patch map
+    patch_map, _cls = retrieve_last_model_layer(img, model)
 
-    # Collect model blocks, last layer
-    total_blocks = len(model.model.layer)
-    n_taps = 1
+    # Upsample to the target resolution
+    dense = F.interpolate(patch_map, size=(W, H), mode="bilinear")
 
-    # Retrieve the n last layers (1-4 appear to have similar results with this simple
-    # interpolation method)
-    indices = np.arange(total_blocks-n_taps-1, total_blocks-1, n_taps)
-
-    # Extract intermediate layers
-    intermediates = get_model_intermediates(img, model, n_taps)
-
-    # Upsample each layer's map to the target resolution
-    layer_maps = []
-    for patch_map, _cls in intermediates:
-        upsampled = F.interpolate(
-            patch_map, size=(W, H),
-            mode="bilinear", align_corners=False
-        )
-        layer_maps.append(upsampled)
-
-    # Fuse by averaging
-    dense = torch.stack(layer_maps, dim=0).mean(dim=0)    # (B, D, H, W)
-
-    # normalize per pixel
+    # Normalize per pixel
     dense = F.normalize(dense, dim=1)
 
     return dense.detach().numpy()
 
 
-def get_model_intermediates(img, model, n_taps=1):
+def retrieve_last_model_layers(img, model, n_taps=1):
     """
-    Returns intermediate patch maps from the HF DINOv3ViTModel,
+    Returns last model patch maps from the HF DINOv3ViTModel,
     matching the (patch_map, cls_token) tuple format of get_intermediate_layers().
 
     Handles models with register tokens by taking the last H_p*W_p tokens
@@ -193,3 +172,33 @@ def get_model_intermediates(img, model, n_taps=1):
         intermediates.append((patch_map, cls_token))
 
     return intermediates
+
+
+def retrieve_last_model_layer(img, model):
+    """
+    Returns the last model patch map from the HF DINOv3ViTModel as a
+    (patch_map, cls_token) tuple.
+
+    Handles models with register tokens by taking the last H_p*W_p tokens
+    as patch tokens, regardless of any prefix tokens (CLS, registers, etc.)
+
+    Returns:
+        patch_map: (B, D, H_p, W_p)
+        cls_token: (B, D)
+    """
+    B = img.shape[0]
+    H_p = img.shape[2] // model.config.patch_size
+    W_p = img.shape[3] // model.config.patch_size
+    n_patch_tokens = H_p * W_p
+
+    with torch.no_grad():
+        outputs = model(img, output_hidden_states=True)
+
+    hs = outputs.hidden_states[-1]              # (B, 1+registers+H_p*W_p, D)
+    cls_token = hs[:, 0, :]                     # (B, D)
+    patch_tokens = hs[:, -n_patch_tokens:, :]   # (B, H_p*W_p, D)
+    D = patch_tokens.shape[-1]
+    patch_map = patch_tokens.permute(0, 2, 1).reshape(B, D, H_p, W_p)
+
+    return patch_map, cls_token
+

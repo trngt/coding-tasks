@@ -4,3 +4,10 @@
 __pycache__
 
 output
+
+task1/best_model.pt
+task1/data/
+task1/example_config.json
+task1/predictions.png
+task1/results.json
+task1/training_curves.png

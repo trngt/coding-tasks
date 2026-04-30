@@ -212,7 +212,7 @@ def compute_extents(data_manager, slc):
                   slc.y.stop*y_nm_per_pixel/nm_per_microns]
     return extent
 
-def format_microscopy_ax(ax, data_manager, slc):
+def format_microscopy_ax(ax, data_manager, slc, grid_alpha=0.25):
 
     # Compute extents in nm
     dimensions = data_manager.em_data.data.attrs['pixelResolution']['dimensions']
@@ -234,9 +234,9 @@ def format_microscopy_ax(ax, data_manager, slc):
     y_grid_lines = np.arange(extent[2], extent[3], y_patch_um)
     def draw_grid(ax):
         for x in x_grid_lines:
-            ax.axvline(x, color='red', linewidth=0.25, alpha=0.1)
+            ax.axvline(x, color='red', linewidth=0.25, alpha=grid_alpha)
         for y in y_grid_lines:
-            ax.axhline(y, color='red', linewidth=0.25, alpha=0.1)
+            ax.axhline(y, color='red', linewidth=0.25, alpha=grid_alpha)
 
     format_axes(ax)
     draw_grid(ax)
