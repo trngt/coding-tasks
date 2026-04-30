@@ -1,7 +1,7 @@
 import numpy as np
 from .data_manager import DataManager
 from .slice import Slice3D
-
+from .mito_slice_manager import MitoEntry
 
 class SliceAnalyzer:
     """Single-slice reference embedding analysis.
@@ -40,7 +40,7 @@ class SliceAnalyzer:
 
         self.is_dense = is_dense
 
-    def select_mitochondrion(self, mito_id: int):
+    def select_mitochondrion(self, mito_id: int, mito_entry: MitoEntry):
         """Set the active mitochondrion and compute its reference vector.
 
         Builds a binary mask for mito_id, masks the dense embeddings,
@@ -48,21 +48,37 @@ class SliceAnalyzer:
         """
         seg_np = np.array(self.seg_data)
         self.mito_mask = (seg_np == mito_id)
+        self.mito_entry = mito_entry
 
         selected = self.embeddings[0, :] * self.mito_mask  # (D, H, W)
         self.reference_vector = selected.mean((1, 2))       # (D,)
 
+        mito_centroid = (mito_entry.bbox[0]+mito_entry.bbox[1])//2, (mito_entry.bbox[2]+mito_entry.bbox[3])//2
+        self.centroid_reference_vector = self.embeddings[0, :, *mito_centroid]
+
         return self.mito_mask, self.reference_vector
 
-    def compute_distance_map(self) -> np.ndarray:
+    def compute_distance_map(self, distance_mode='cosine', embedding_mode='centroid') -> np.ndarray:
         """Compute cosine distance from the reference vector to every pixel."""
         from scipy.spatial.distance import cosine
+        from numpy.linalg import norm
+
+        if distance_mode == 'cosine':
+            dist_func = cosine
+        else:
+            dist_func = lambda a, b: norm(a - b)  # L2 distance
 
         H, W = self.embeddings.shape[2], self.embeddings.shape[3]
         flat = self.embeddings[0].reshape((-1, H * W)).T  # (H*W, D)
 
+
+        if embedding_mode == 'centroid':
+            ref_vector = self.centroid_reference_vector
+        else:
+            ref_vector = self.reference_vector
+
         self.distance_map = np.array([
-            cosine(flat[i], self.reference_vector)
+            dist_func(flat[i], ref_vector)
             for i in range(H * W)
         ]).reshape(H, W)
 

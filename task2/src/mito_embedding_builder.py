@@ -65,7 +65,7 @@ class MitoEmbeddingBuilder:
                     self.slice_analyzer.set_embeddings(patch_embeddings, is_dense=False)
                     last_slice_index = entry.slice_index
 
-                self.slice_analyzer.select_mitochondrion(mito_id)
+                self.slice_analyzer.select_mitochondrion(mito_id, entry)
                 self.all_mito_vectors[mito_id] = self.slice_analyzer.reference_vector
                 pbar.set_postfix(elapsed=timer.get_time())
 

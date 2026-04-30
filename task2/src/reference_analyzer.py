@@ -50,7 +50,7 @@ class ReferenceAnalyzer:
 
         self.slice_analyzer.set_slice(slc)
         self.slice_analyzer.set_embeddings(patch_embeddings, is_dense=False)
-        self.slice_analyzer.select_mitochondrion(mito_id)
+        self.slice_analyzer.select_mitochondrion(mito_id, entry)
         self.slice_analyzer.compute_distance_map()
 
     def plot_reference(self):
@@ -58,7 +58,7 @@ class ReferenceAnalyzer:
         self.slice_analyzer.plot()
         plt.savefig(f"{self.pipeline.output_dir}/{self.pipeline.name}_selected.png", dpi=200)
 
-    def compute_distances(self):
+    def compute_distances(self, distance_mode='cosine'):
         """Compute L2 distances from the reference vector to all mito vectors.
 
         Populates self.distances_df sorted by ascending distance.
@@ -70,8 +70,13 @@ class ReferenceAnalyzer:
         from numpy.linalg import norm
         from scipy.spatial.distance import cosine
 
+        if distance_mode == 'cosine':
+            dist_func = cosine
+        else:
+            dist_func = lambda a, b: norm(a - b)  # L2 distance
+
         distances = {
-            mito_id: cosine(self.reference_vector, vec)  # norm(self.reference_vector - vec)
+            mito_id: dist_func(self.reference_vector, vec)
             for mito_id, vec in self.pipeline.all_mito_vectors.items()
         }
         self.distances_df = (
